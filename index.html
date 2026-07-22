@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEVERMAKE — Portfolio & System Manifest</title>
+  <title>LEVERMAKE — Portfolio, Apps & Systems Manifest</title>
   <!-- Google Fonts for System-like and Bold Editorial styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <style>
     /* --------------------------------------------------
@@ -30,6 +30,10 @@
       --grid-dot-color: rgba(255, 255, 255, 0.07);
       --canvas-node-color: rgba(0, 230, 118, 0.25);
       --canvas-line-color: rgba(0, 230, 118, 0.08);
+
+      --card-bg: rgba(15, 23, 42, 0.4);
+      --input-bg: rgba(15, 23, 42, 0.6);
+      --terminal-bg: #050B14;
     }
 
     body.theme-haoqi {
@@ -47,6 +51,10 @@
       --grid-dot-color: rgba(0, 0, 0, 0.06);
       --canvas-node-color: rgba(0, 184, 98, 0.2);
       --canvas-line-color: rgba(0, 184, 98, 0.05);
+
+      --card-bg: rgba(229, 227, 216, 0.4);
+      --input-bg: rgba(229, 227, 216, 0.6);
+      --terminal-bg: #EAE8DF;
     }
 
     /* Reset & Base Styles */
@@ -62,7 +70,7 @@
       background-color: var(--bg-color);
       color: var(--text-color);
       font-family: var(--font-mono);
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.6;
       overflow-x: hidden;
       transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
@@ -81,7 +89,7 @@
       z-index: 1;
     }
 
-    /* High-Performance Interactive Background Canvas */
+    /* Interactive Background Canvas */
     #ambient-canvas {
       position: fixed;
       top: 0;
@@ -90,7 +98,6 @@
       height: 100%;
       pointer-events: none;
       z-index: 2;
-      transition: opacity 0.5s ease;
     }
 
     /* Container alignment & Chrome layout */
@@ -104,7 +111,7 @@
     }
 
     /* --------------------------------------------------
-       HEADER SECTION
+       HEADER SECTION & NAVIGATION
        -------------------------------------------------- */
     .site-header {
       position: sticky;
@@ -121,18 +128,18 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      height: 64px;
+      height: 72px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
 
     .site-logo {
       font-family: var(--font-heading);
-      font-weight: 700;
+      font-weight: 800;
       font-size: 18px;
       letter-spacing: -0.02em;
       color: var(--text-color);
@@ -157,37 +164,70 @@
       animation: pulse 2s infinite alternate;
     }
 
-    .header-center {
+    /* Navigation Links */
+    .header-nav {
       display: flex;
-      align-items: center;
-      gap: 24px;
+      gap: 16px;
     }
 
-    .header-center-item {
-      font-size: 11px;
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-color);
+      border-color: var(--border-color);
+      background-color: var(--row-hover-bg);
+    }
+
+    .nav-link.active-nav {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+      background-color: var(--row-hover-bg);
+      font-weight: bold;
+    }
+
+    /* Diagnostics */
+    .header-diagnostics {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .diag-item {
+      font-size: 10px;
       color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
 
-    .header-center-item span {
+    .diag-item span {
       color: var(--text-color);
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
 
     .live-clock {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-color);
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     .live-clock::before {
@@ -207,7 +247,7 @@
       color: var(--text-color);
       font-family: var(--font-mono);
       font-size: 11px;
-      padding: 6px 10px;
+      padding: 6px 12px;
       cursor: pointer;
       border-radius: 2px;
       display: flex;
@@ -227,10 +267,33 @@
     }
 
     /* --------------------------------------------------
-       HERO SECTION
+       ROUTABLE VIEW CONTAINERS
+       -------------------------------------------------- */
+    .site-view {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .site-view.active-view {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --------------------------------------------------
+       HERO VIEW (#/home)
        -------------------------------------------------- */
     .hero-section {
-      padding: 120px 0 80px 0;
+      padding: 100px 0 60px 0;
       border-bottom: 1px solid var(--border-color);
       position: relative;
     }
@@ -242,7 +305,7 @@
       border: 1px solid var(--border-color);
       padding: 4px 12px;
       border-radius: 2px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       font-size: 11px;
       color: var(--text-muted);
       gap: 8px;
@@ -258,16 +321,16 @@
       font-weight: bold;
     }
 
-    /* Giant bold single-word statement with kinetic hover/glitch feel */
+    /* Giant bold single-word statement */
     .hero-huge-word {
       font-family: var(--font-heading);
       font-weight: 900;
-      font-size: clamp(60px, 14vw, 150px);
+      font-size: clamp(54px, 13vw, 140px);
       line-height: 0.85;
       letter-spacing: -0.05em;
       text-transform: uppercase;
       color: var(--text-color);
-      margin-bottom: 36px;
+      margin-bottom: 32px;
       position: relative;
       cursor: default;
       user-select: none;
@@ -275,7 +338,6 @@
       transition: transform 0.2s ease, text-shadow 0.2s ease;
     }
 
-    /* Subtle split kinetic text effect on hover */
     .hero-huge-word:hover {
       text-shadow: 2px -1px 0 var(--accent-color), -1px 2px 0 rgba(255, 0, 128, 0.5);
     }
@@ -287,7 +349,7 @@
     }
 
     .hero-subtitle {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       color: var(--accent-color);
       margin-bottom: 16px;
@@ -296,7 +358,7 @@
     }
 
     .hero-bio {
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
       color: var(--text-color);
       margin-bottom: 28px;
@@ -327,7 +389,7 @@
       border-radius: 2px;
       color: var(--text-color);
       text-decoration: none;
-      font-size: 12px;
+      font-size: 11px;
       transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
     }
 
@@ -347,10 +409,10 @@
     }
 
     /* --------------------------------------------------
-       MANIFEST / PROJECTS SECTION
+       MANIFEST / PROJECTS SECTION (#/apps)
        -------------------------------------------------- */
     .apps-section {
-      padding: 100px 0;
+      padding: 80px 0;
       border-bottom: 1px solid var(--border-color);
     }
 
@@ -358,7 +420,7 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 16px;
     }
@@ -384,7 +446,7 @@
 
     .manifest-header {
       display: grid;
-      grid-template-columns: 80px 220px 1fr 100px 140px;
+      grid-template-columns: 80px 180px 1fr 100px 120px 60px;
       padding: 12px 16px;
       font-size: 11px;
       color: var(--text-muted);
@@ -395,14 +457,15 @@
 
     .manifest-row {
       display: grid;
-      grid-template-columns: 80px 220px 1fr 100px 140px;
-      padding: 24px 16px;
+      grid-template-columns: 80px 180px 1fr 100px 120px 60px;
+      padding: 22px 16px;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
       text-decoration: none;
       color: var(--text-color);
       transition: background-color 0.2s ease, border-color 0.2s ease;
       position: relative;
+      cursor: pointer;
     }
 
     .manifest-row:hover {
@@ -423,18 +486,18 @@
     .manifest-row .col-name {
       font-family: var(--font-heading);
       font-weight: 700;
-      font-size: 18px;
+      font-size: 17px;
       letter-spacing: -0.01em;
     }
 
     .manifest-row .col-tagline {
       color: var(--text-color);
-      font-size: 14px;
-      padding-right: 24px;
+      font-size: 13px;
+      padding-right: 16px;
     }
 
     .manifest-row .col-year {
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
@@ -442,9 +505,22 @@
       justify-self: start;
     }
 
+    .manifest-row .col-action {
+      font-size: 11px;
+      color: var(--accent-color);
+      text-align: right;
+      opacity: 0.6;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .manifest-row:hover .col-action {
+      opacity: 1;
+      transform: translateX(4px);
+    }
+
     .status-tag {
-      font-size: 10px;
-      padding: 2px 8px;
+      font-size: 9px;
+      padding: 2px 6px;
       background-color: var(--badge-bg);
       color: var(--badge-text);
       border: 1px solid var(--border-color);
@@ -459,42 +535,528 @@
       border-color: var(--accent-color);
     }
 
-    /* Responsive grid styles */
+    /* --------------------------------------------------
+       APP DETAIL modal/panel views (Simulated)
+       -------------------------------------------------- */
+    .app-detail-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    body.theme-haoqi .app-detail-overlay {
+      background-color: rgba(245, 244, 240, 0.7);
+    }
+
+    .app-detail-card {
+      background-color: var(--bg-color);
+      border: 1px solid var(--accent-color);
+      border-radius: 4px;
+      width: 100%;
+      max-width: 720px;
+      box-shadow: 0 0 24px var(--accent-glow);
+      overflow: hidden;
+      animation: modalSlide 0.3s ease;
+    }
+
+    @keyframes modalSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .detail-card-header {
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--card-bg);
+    }
+
+    .detail-card-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .close-detail-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .close-detail-btn:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .detail-card-body {
+      padding: 24px;
+      font-size: 13px;
+    }
+
+    .detail-app-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 2px;
+    }
+
+    .detail-meta-item {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .detail-meta-item span {
+      color: var(--text-color);
+      font-weight: bold;
+    }
+
+    .detail-app-description {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      color: var(--text-color);
+    }
+
+    /* System / Terminal telemetry stream mock */
+    .detail-telemetry-box {
+      background-color: var(--terminal-bg);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      height: 180px;
+      overflow-y: auto;
+    }
+
+    .detail-telemetry-box .tel-line {
+      margin-bottom: 4px;
+    }
+
+    .detail-telemetry-box .tel-line.accent {
+      color: var(--accent-color);
+    }
+
+    /* --------------------------------------------------
+       ABOUT & PHILOSOPHY VIEW (#/about)
+       -------------------------------------------------- */
+    .about-view {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .about-grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+
+    .about-header-sub {
+      font-size: 12px;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .about-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 32px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .about-left-col p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-color);
+      margin-bottom: 16px;
+    }
+
+    .about-left-col p strong {
+      color: var(--accent-color);
+    }
+
+    .about-spec-manifest {
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      background-color: var(--card-bg);
+      padding: 20px;
+    }
+
+    .spec-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 0;
+    }
+
+    .spec-item:last-child {
+      border-bottom: none;
+    }
+
+    .spec-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .spec-val {
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    /* Technology Stack Cards */
+    .tech-stack-section {
+      margin-top: 40px;
+    }
+
+    .tech-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .tech-card {
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 2px;
+      background-color: var(--card-bg);
+    }
+
+    .tech-card h4 {
+      font-family: var(--font-heading);
+      font-size: 13px;
+      color: var(--accent-color);
+      margin-bottom: 8px;
+    }
+
+    .tech-card p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* --------------------------------------------------
+       TERMINAL VIEW (#/terminal)
+       -------------------------------------------------- */
+    .terminal-view {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .terminal-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+
+    .terminal-container {
+      background-color: var(--terminal-bg);
+      border: 1px solid var(--accent-color);
+      border-radius: 4px;
+      box-shadow: 0 0 16px var(--accent-glow);
+      padding: 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-color);
+      height: 480px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-output {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .term-line {
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .term-line.prompt-line {
+      color: var(--accent-color);
+    }
+
+    .term-line.error-line {
+      color: #EF4444;
+    }
+
+    .term-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 12px;
+    }
+
+    .term-prompt {
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    .term-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+    }
+
+    /* --------------------------------------------------
+       CONTACT VIEW (#/contact)
+       -------------------------------------------------- */
+    .contact-view {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+
+    .contact-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .contact-text-block p {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+
+    .contact-details {
+      margin: 24px 0;
+    }
+
+    .contact-detail-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .contact-detail-row .lbl {
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      width: 80px;
+    }
+
+    .contact-detail-row .val a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .contact-detail-row .val a:hover {
+      color: var(--accent-color);
+    }
+
+    /* Form Design */
+    .contact-form-card {
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      background-color: var(--card-bg);
+      padding: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      padding: 12px 16px;
+      color: var(--text-color);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    textarea.form-input {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .submit-form-btn {
+      width: 100%;
+      background: none;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 14px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-form-btn:hover {
+      background-color: var(--row-hover-bg);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Telemetry loading block */
+    .telemetry-console {
+      display: none;
+      margin-top: 20px;
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      background-color: var(--terminal-bg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      height: 140px;
+      overflow-y: auto;
+      border-radius: 2px;
+    }
+
+    .telemetry-line {
+      margin-bottom: 4px;
+    }
+
+    .telemetry-line.success {
+      color: var(--accent-color);
+    }
+
+    /* --------------------------------------------------
+       RESPONSIVE REFINEMENTS
+       -------------------------------------------------- */
     @media (max-width: 900px) {
+      .header-inner {
+        flex-direction: column;
+        height: auto;
+        padding: 16px 0;
+        gap: 12px;
+      }
+
+      .header-diagnostics {
+        display: none;
+      }
+
+      .about-grid-layout, .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .tech-cards {
+        grid-template-columns: 1fr;
+      }
+
       .manifest-header {
         display: none;
       }
+
       .manifest-row {
-        grid-template-columns: 50px 1fr 120px;
+        grid-template-columns: 40px 1fr 100px;
         grid-template-areas:
           "num name status"
           "num tagline tagline"
-          "num year year";
+          "num year year"
+          "num action action";
         gap: 12px 8px;
         padding: 20px 12px;
       }
+
       .manifest-row .col-num {
         grid-area: num;
         align-self: start;
-        font-size: 14px;
-        padding-top: 2px;
-      }
-      .manifest-row .col-name {
-        grid-area: name;
-        font-size: 18px;
-      }
-      .manifest-row .col-tagline {
-        grid-area: tagline;
-        padding-right: 0;
         font-size: 13px;
       }
+
+      .manifest-row .col-name {
+        grid-area: name;
+        font-size: 16px;
+      }
+
+      .manifest-row .col-tagline {
+        grid-area: tagline;
+        font-size: 12px;
+        padding-right: 0;
+      }
+
       .manifest-row .col-year {
         grid-area: year;
-        font-size: 12px;
+        font-size: 11px;
       }
+
       .manifest-row .col-status {
         grid-area: status;
         justify-self: end;
+      }
+
+      .manifest-row .col-action {
+        grid-area: action;
+        text-align: left;
+        font-size: 11px;
+        padding-top: 4px;
       }
     }
 
@@ -502,21 +1064,21 @@
        FOOTER SECTION
        -------------------------------------------------- */
     .site-footer {
-      padding: 120px 0 60px 0;
+      padding: 100px 0 60px 0;
       position: relative;
     }
 
     .footer-cta {
       font-family: var(--font-heading);
       font-weight: 800;
-      font-size: clamp(32px, 6vw, 64px);
+      font-size: clamp(30px, 5.5vw, 60px);
       line-height: 1.1;
       letter-spacing: -0.03em;
       text-transform: uppercase;
-      margin-bottom: 80px;
+      margin-bottom: 64px;
       color: var(--text-color);
       border-left: 4px solid var(--accent-color);
-      padding-left: 24px;
+      padding-left: 20px;
     }
 
     .footer-bottom {
@@ -539,7 +1101,7 @@
 
     .footer-links {
       display: flex;
-      gap: 24px;
+      gap: 20px;
     }
 
     .footer-links a {
@@ -576,22 +1138,31 @@
   <div class="app-container">
 
     <!-- --------------------------------------------------
-         1. HEADER SECTION
+         HEADER & NAV BAR
          -------------------------------------------------- -->
     <header class="site-header">
       <div class="header-inner">
-        <!-- Logo / Name & Status -->
+        <!-- Logo -->
         <div class="header-left">
-          <a href="#" class="site-logo">LEVERMAKE</a>
+          <a href="#/home" class="site-logo">LEVERMAKE</a>
           <div class="sys-badge" id="system-badge">SYS_ALIVE</div>
         </div>
 
-        <!-- Center Diagnostics (Uptime & Cursor coordinates) -->
-        <div class="header-center">
-          <div class="header-center-item">
+        <!-- Navigation bar -->
+        <nav class="header-nav">
+          <a href="#/home" class="nav-link" id="nav-home">Home</a>
+          <a href="#/apps" class="nav-link" id="nav-apps">Apps</a>
+          <a href="#/about" class="nav-link" id="nav-about">About</a>
+          <a href="#/terminal" class="nav-link" id="nav-terminal">Terminal</a>
+          <a href="#/contact" class="nav-link" id="nav-contact">Contact</a>
+        </nav>
+
+        <!-- Diagnostics -->
+        <div class="header-diagnostics">
+          <div class="diag-item">
             UPTIME: <span id="uptime-counter">00:00:00.00</span>
           </div>
-          <div class="header-center-item">
+          <div class="diag-item">
             COORD: <span id="coords-display">0000X 0000Y</span>
           </div>
         </div>
@@ -606,126 +1177,280 @@
       </div>
     </header>
 
-    <!-- --------------------------------------------------
-         2. HERO SECTION
-         -------------------------------------------------- -->
-    <section class="hero-section">
-      <!-- FWA-style counter/badge motif -->
-      <div class="fwa-counter-badge">
-        <span class="index-num">[01]</span>
-        <span>INDEX // STACK CONTROL SECTOR</span>
-        <span>•</span>
-        <span id="session-counter-badge">SESSION_TIME: 00:00:00</span>
-      </div>
-
-      <!-- Giant single word statement -->
-      <div>
-        <h1 class="hero-huge-word" id="kinetic-word">COMPUTERS</h1>
-      </div>
-
-      <!-- Terse system-like voice Bio -->
-      <div class="hero-bio-container">
-        <div class="hero-subtitle">// ROOT BIO MANIFEST</div>
-        <div class="hero-bio">
-          <p>Goes by <strong>Levermake</strong>. Operating from coordinates: <em>Earth</em>.</p>
-          <p>Founder building new things. Finds computers genuinely and deeply fun. Working on <strong>Gauge</strong>, crafting workflows, building systems that scale and matter.</p>
+    <!-- ==================================================
+         A. HOME VIEW
+         ================================================== -->
+    <main class="site-view" id="view-home">
+      <section class="hero-section">
+        <!-- FWA badge -->
+        <div class="fwa-counter-badge">
+          <span class="index-num">[01]</span>
+          <span>SYSTEM CONTROL PANEL</span>
+          <span>•</span>
+          <span id="session-counter-badge">SESSION_TIME: 00:00:00</span>
         </div>
 
-        <!-- Social links as interactive pills -->
-        <div class="hero-social-links">
-          <a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
-            <span>X / @levermake</span>
-            <span class="arrow">↗</span>
-          </a>
-          <a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
-            <span>GitHub / @levermake</span>
-            <span class="arrow">↗</span>
-          </a>
+        <!-- Giant single word statement -->
+        <div>
+          <h1 class="hero-huge-word" id="kinetic-word">COMPUTERS</h1>
+        </div>
+
+        <!-- Bio Details -->
+        <div class="hero-bio-container">
+          <div class="hero-subtitle">// ROOT PORTFOLIO BIO</div>
+          <div class="hero-bio">
+            <p>Goes by <strong>Levermake</strong>. Operating from coordinates: <em>Earth</em>.</p>
+            <p>Founder building new things. Finds computers genuinely and deeply fun. Working on <strong>Gauge</strong>, crafting workflows, building systems that scale and matter.</p>
+          </div>
+
+          <!-- Social link pills -->
+          <div class="hero-social-links">
+            <a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
+              <span>X / @levermake</span>
+              <span class="arrow">↗</span>
+            </a>
+            <a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
+              <span>GitHub / @levermake</span>
+              <span class="arrow">↗</span>
+            </a>
+            <a href="#/apps" class="social-pill">
+              <span>Explore Manifest</span>
+              <span class="arrow">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================================================
+         B. APPS / MANIFEST VIEW
+         ================================================== -->
+    <section class="site-view" id="view-apps">
+      <div class="apps-section">
+        <div class="section-header">
+          <h2 class="section-title">// DEVP_TOOLS MANIFEST — 5 ACTIVE APPLICATIONS</h2>
+          <div class="section-count">[05 ITEMS RECORDED]</div>
+        </div>
+
+        <div class="manifest-list">
+          <div class="manifest-header">
+            <div>ID</div>
+            <div>NAME</div>
+            <div>TAGLINE / COGNITIVE SCOPE</div>
+            <div>YEAR</div>
+            <div>STATUS</div>
+            <div>DETAIL</div>
+          </div>
+
+          <!-- Row 06: Flipside -->
+          <div class="manifest-row" data-app-id="flipside">
+            <div class="col-num">06</div>
+            <div class="col-name">Flipside</div>
+            <div class="col-tagline">Shows you the other side of an argument or decision before you commit to it.</div>
+            <div class="col-year">2025</div>
+            <div class="col-status">
+              <span class="status-tag">Active Build</span>
+            </div>
+            <div class="col-action">SPEC↗</div>
+          </div>
+
+          <!-- Row 07: Leggo -->
+          <div class="manifest-row" data-app-id="leggo">
+            <div class="col-num">07</div>
+            <div class="col-name">Leggo</div>
+            <div class="col-tagline">A habit/letting-go tracker for dropping things that aren't working.</div>
+            <div class="col-year">2025</div>
+            <div class="col-status">
+              <span class="status-tag">Active Build</span>
+            </div>
+            <div class="col-action">SPEC↗</div>
+          </div>
+
+          <!-- Row 08: Morrow -->
+          <div class="manifest-row" data-app-id="morrow">
+            <div class="col-num">08</div>
+            <div class="col-name">Morrow</div>
+            <div class="col-tagline">Plans tomorrow the night before, so you start the day already decided.</div>
+            <div class="col-year">2025</div>
+            <div class="col-status">
+              <span class="status-tag">Active Build</span>
+            </div>
+            <div class="col-action">SPEC↗</div>
+          </div>
+
+          <!-- Row 09: Primer -->
+          <div class="manifest-row" data-app-id="primer">
+            <div class="col-num">09</div>
+            <div class="col-name">Primer</div>
+            <div class="col-tagline">Quick-start briefings that get you up to speed on a topic before a meeting or task.</div>
+            <div class="col-year">2025</div>
+            <div class="col-status">
+              <span class="status-tag">Active Build</span>
+            </div>
+            <div class="col-action">SPEC↗</div>
+          </div>
+
+          <!-- Row 10: Dossier -->
+          <div class="manifest-row" data-app-id="dossier">
+            <div class="col-num">10</div>
+            <div class="col-name">Dossier</div>
+            <div class="col-tagline">Builds a living profile/reference sheet on a person, company, or topic as you research it.</div>
+            <div class="col-year">2025</div>
+            <div class="col-status">
+              <span class="status-tag">Active Build</span>
+            </div>
+            <div class="col-action">SPEC↗</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         C. ABOUT VIEW
+         ================================================== -->
+    <section class="site-view" id="view-about">
+      <div class="about-view">
+        <div class="about-grid-layout">
+          <!-- Left Column: Biography & Philosophy -->
+          <div class="about-left-col">
+            <div class="about-header-sub">// COGNITIVE OVERVIEW</div>
+            <h2 class="about-title">SYSTEM PHILOSOPHY & CRAFT</h2>
+            <p>I build <strong>high-efficiency utilities, development tools, and interactive ecosystems</strong>. My work is structured around a commitment to system craftsmanship, visual restraint, and extreme functional utility.</p>
+            <p>I believe computers are meant to be fast, responsive, and genuinely fun to use. By combining raw, high-contrast, text-first typography with micro-interactions and smooth spatial rendering, we can shape professional tools with maximum speed and clarity.</p>
+
+            <div class="tech-stack-section">
+              <div class="about-header-sub">// CORE PROTOCOLS</div>
+              <div class="tech-cards">
+                <div class="tech-card">
+                  <h4>LANGUAGES & FRAMEWORKS</h4>
+                  <p>TypeScript, WebGL, Rust, Node.js, WebAssembly, Go</p>
+                </div>
+                <div class="tech-card">
+                  <h4>ENGINEERING PRINCIPLES</h4>
+                  <p>Local-first Syncing, Edge Systems, Extreme Optimization, Spatial UI</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: System Specs -->
+          <div class="about-right-col">
+            <div class="about-header-sub">// SYSTEM TELEMETRY SUMMARY</div>
+            <div class="about-spec-manifest">
+              <div class="spec-item">
+                <span class="spec-label">CODENAME</span>
+                <span class="spec-val">LEVERMAKE</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">SECTOR</span>
+                <span class="spec-val">EARTH (SAST UTC+2)</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">ACTIVE PLATFORM</span>
+                <span class="spec-val">GAUGE ENGINE / INDEV APPS</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">PRIMARY STATUS</span>
+                <span class="spec-val">ONLINE (SYS_ALIVE)</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">INTERACTION STYLE</span>
+                <span class="spec-val">HIGH-CONTRAST MONO CLS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         D. TERMINAL VIEW
+         ================================================== -->
+    <section class="site-view" id="view-terminal">
+      <div class="terminal-view">
+        <div class="about-header-sub">// SYSTEM CONSOLE TERMINAL</div>
+        <h2 class="about-title" style="margin-bottom: 8px;">INTERACTIVE SHELL v1.0.4</h2>
+        <div class="terminal-desc">Query information directly from Levermake's database. Type <strong>help</strong> to see the list of active commands.</div>
+
+        <div class="terminal-container" id="terminal-box">
+          <div class="terminal-output" id="terminal-output">
+            <div class="term-line">Levermake Core Command Interpreter. (c) 2025. All Rights Reserved.</div>
+            <div class="term-line">System Uptime is active. Local clock is live.</div>
+            <div class="term-line">Type <span style="color: var(--accent-color); font-weight: bold;">help</span> for a list of valid commands.</div>
+            <div class="term-line">--------------------------------------------------</div>
+          </div>
+          <div class="term-input-row">
+            <span class="term-prompt">levermake@system:~$ </span>
+            <input type="text" class="term-input" id="terminal-input" autofocus autocomplete="off" spellcheck="false" placeholder="Enter system command...">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================
+         E. CONTACT VIEW
+         ================================================== -->
+    <section class="site-view" id="view-contact">
+      <div class="contact-view">
+        <div class="contact-grid">
+          <!-- Left Column -->
+          <div class="contact-left">
+            <div>
+              <div class="about-header-sub">// COMMUNICATIONS INTERFACE</div>
+              <h2 class="about-title">ESTABLISH SECURE LINK</h2>
+              <div class="contact-text-block">
+                <p>To pitch collaboration, report bugs in the developer tools, or inquire about working with Levermake, dispatch a secure link sequence.</p>
+                <p>Your packet is transferred over simulated local secure protocols and monitored for transmission success in the adjacent visual telemetric panel.</p>
+              </div>
+            </div>
+
+            <div class="contact-details">
+              <div class="contact-detail-row">
+                <span class="lbl">X / Twitter</span>
+                <span class="val"><a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer">@levermake</a></span>
+              </div>
+              <div class="contact-detail-row">
+                <span class="lbl">GitHub</span>
+                <span class="val"><a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer">@levermake</a></span>
+              </div>
+              <div class="contact-detail-row">
+                <span class="lbl">Coordinates</span>
+                <span class="val">Earth / SAST Zone</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Form & Telemetry panel -->
+          <div>
+            <div class="contact-form-card">
+              <form id="contact-form">
+                <div class="form-group">
+                  <label class="form-label">Identifier / Name</label>
+                  <input type="text" id="form-name" class="form-input" required placeholder="e.g., CAPTAIN NEMO">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Return Address / Email</label>
+                  <input type="email" id="form-email" class="form-input" required placeholder="e.g., nemo@nautilus.org">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Message Payload</label>
+                  <textarea id="form-message" class="form-input" required placeholder="Enter message text..."></textarea>
+                </div>
+                <button type="submit" class="submit-form-btn">DISPATCH PACKET SEQUENCE</button>
+              </form>
+            </div>
+
+            <!-- Telemetry loading screen -->
+            <div class="telemetry-console" id="telemetry-box"></div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- --------------------------------------------------
-         3. BUILDING / APPS SECTION (Manifest)
-         -------------------------------------------------- -->
-    <section class="apps-section">
-      <div class="section-header">
-        <h2 class="section-title">// DEVP_TOOLS MANIFEST — 5 APPS IN ACTIVE BUILD</h2>
-        <div class="section-count">[05 ITEMS RECORDED]</div>
-      </div>
-
-      <div class="manifest-list">
-        <!-- Row Header -->
-        <div class="manifest-header">
-          <div>ID</div>
-          <div>NAME</div>
-          <div>TAGLINE / COGNITIVE SCOPE</div>
-          <div>YEAR</div>
-          <div>STATUS</div>
-        </div>
-
-        <!-- Row 06: Flipside -->
-        <div class="manifest-row">
-          <div class="col-num">06</div>
-          <div class="col-name">Flipside</div>
-          <div class="col-tagline">Shows you the other side of an argument or decision before you commit to it.</div>
-          <div class="col-year">2025</div>
-          <div class="col-status">
-            <span class="status-tag">Active Build</span>
-          </div>
-        </div>
-
-        <!-- Row 07: Leggo -->
-        <div class="manifest-row">
-          <div class="col-num">07</div>
-          <div class="col-name">Leggo</div>
-          <div class="col-tagline">A habit/letting-go tracker for dropping things that aren't working.</div>
-          <div class="col-year">2025</div>
-          <div class="col-status">
-            <span class="status-tag">Active Build</span>
-          </div>
-        </div>
-
-        <!-- Row 08: Morrow -->
-        <div class="manifest-row">
-          <div class="col-num">08</div>
-          <div class="col-name">Morrow</div>
-          <div class="col-tagline">Plans tomorrow the night before, so you start the day already decided.</div>
-          <div class="col-year">2025</div>
-          <div class="col-status">
-            <span class="status-tag">Active Build</span>
-          </div>
-        </div>
-
-        <!-- Row 09: Primer -->
-        <div class="manifest-row">
-          <div class="col-num">09</div>
-          <div class="col-name">Primer</div>
-          <div class="col-tagline">Quick-start briefings that get you up to speed on a topic before a meeting or task.</div>
-          <div class="col-year">2025</div>
-          <div class="col-status">
-            <span class="status-tag">Active Build</span>
-          </div>
-        </div>
-
-        <!-- Row 10: Dossier -->
-        <div class="manifest-row">
-          <div class="col-num">10</div>
-          <div class="col-name">Dossier</div>
-          <div class="col-tagline">Builds a living profile/reference sheet on a person, company, or topic as you research it.</div>
-          <div class="col-year">2025</div>
-          <div class="col-status">
-            <span class="status-tag">Active Build</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- --------------------------------------------------
-         4. FOOTER SECTION
+         FOOTER
          -------------------------------------------------- -->
     <footer class="site-footer">
-      <!-- High contrast closing statement -->
       <div class="footer-cta">
         SYSTEM STATUS: ONLINE.<br>
         LET'S BUILD SOMETHING EXTRAORDINARY.
@@ -739,9 +1464,15 @@
         </div>
 
         <div class="footer-links">
-          <a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer">X / TWITTER</a>
+          <a href="#/home">HOME</a>
           <span>/</span>
-          <a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer">GITHUB</a>
+          <a href="#/apps">APPS</a>
+          <span>/</span>
+          <a href="#/about">ABOUT</a>
+          <span>/</span>
+          <a href="#/terminal">TERMINAL</a>
+          <span>/</span>
+          <a href="#/contact">CONTACT</a>
         </div>
       </div>
     </footer>
@@ -749,18 +1480,106 @@
   </div>
 
   <!-- --------------------------------------------------
-       5. JAVASCRIPT SYSTEM ENGINE
+       APP DETAIL SIMULATED WINDOW (POPUP)
+       -------------------------------------------------- -->
+  <div class="app-detail-overlay" id="detail-overlay">
+    <div class="app-detail-card">
+      <div class="detail-card-header">
+        <div class="detail-card-title">
+          <span class="status-tag" id="detail-num">06</span>
+          <span id="detail-title">Flipside</span>
+        </div>
+        <button class="close-detail-btn" id="close-detail">CLOSE[X]</button>
+      </div>
+      <div class="detail-card-body">
+        <div class="detail-app-meta">
+          <div class="detail-meta-item">STATUS: <span id="detail-status" style="color: var(--accent-color);">ACTIVE BUILD</span></div>
+          <div class="detail-meta-item">YEAR: <span id="detail-year">2025</span></div>
+          <div class="detail-meta-item">SECTOR: <span>DEVELOPER UTILITIES</span></div>
+          <div class="detail-meta-item">SCOPE: <span>LOCAL-FIRST WORKFLOW</span></div>
+        </div>
+        <div class="detail-app-description" id="detail-description">
+          Shows you the other side of an argument or decision before you commit to it.
+        </div>
+        <div class="about-header-sub" style="margin-bottom: 8px;">// SIMULATED DIAGNOSTICS & SYSTEM LOGS</div>
+        <div class="detail-telemetry-box" id="detail-logs">
+          <!-- Logs get rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------
+       JAVASCRIPT SYSTEM ENGINE
        -------------------------------------------------- -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
 
       /* ==========================================
-         A. THEME CONTROLLER
+         A. ROUTING SYSTEM
+         ========================================== */
+      const routes = {
+        "#/home": "view-home",
+        "#/apps": "view-apps",
+        "#/about": "view-about",
+        "#/terminal": "view-terminal",
+        "#/contact": "view-contact"
+      };
+
+      const navMap = {
+        "view-home": "nav-home",
+        "view-apps": "nav-apps",
+        "view-about": "nav-about",
+        "view-terminal": "nav-terminal",
+        "view-contact": "nav-contact"
+      };
+
+      function router() {
+        const hash = window.location.hash || "#/home";
+        const viewId = routes[hash] || "view-home";
+
+        // Deactivate all views and nav items
+        document.querySelectorAll(".site-view").forEach(view => {
+          view.classList.remove("active-view");
+        });
+        document.querySelectorAll(".nav-link").forEach(link => {
+          link.classList.remove("active-nav");
+        });
+
+        // Activate matching view
+        const targetView = document.getElementById(viewId);
+        if (targetView) {
+          targetView.classList.add("active-view");
+        }
+
+        // Highlight matching nav
+        const navId = navMap[viewId];
+        const targetNav = document.getElementById(navId);
+        if (targetNav) {
+          targetNav.classList.add("active-nav");
+        }
+
+        // Focus terminal input if navigating to terminal
+        if (viewId === "view-terminal") {
+          setTimeout(() => {
+            const input = document.getElementById("terminal-input");
+            if (input) input.focus();
+          }, 100);
+        }
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      window.addEventListener("hashchange", router);
+      // Initialize router on load
+      router();
+
+      /* ==========================================
+         B. THEME CONTROLLER
          ========================================== */
       const themeToggle = document.getElementById("theme-toggle");
       const themeLabel = document.getElementById("theme-label");
 
-      // Load saved theme or default to Zero
       const savedTheme = localStorage.getItem("levermake-theme") || "zero";
       if (savedTheme === "haoqi") {
         document.body.classList.add("theme-haoqi");
@@ -778,7 +1597,7 @@
       });
 
       /* ==========================================
-         B. LIVE SOUTH AFRICA CLOCK (SAST: UTC+2)
+         C. LIVE SOUTH AFRICA CLOCK (SAST: UTC+2)
          ========================================== */
       const clockElement = document.getElementById("sa-clock");
 
@@ -797,10 +1616,9 @@
       updateClock();
 
       /* ==========================================
-         C. SESSION & SYSTEM UPTIME COUNTER
+         D. SESSION & SYSTEM UPTIME COUNTER
          ========================================== */
       const startTime = performance.now();
-      const loadDate = Date.now();
       const uptimeCounter = document.getElementById("uptime-counter");
       const sessionCounterBadge = document.getElementById("session-counter-badge");
 
@@ -809,7 +1627,6 @@
       }
 
       function updateCounters() {
-        // High-precision Uptime
         const elapsedMs = performance.now() - startTime;
         const totalSecs = Math.floor(elapsedMs / 1000);
         const ms = Math.floor((elapsedMs % 1000) / 10);
@@ -819,16 +1636,16 @@
         const secs = totalSecs % 60;
 
         uptimeCounter.textContent = `${padZero(hrs)}:${padZero(mins)}:${padZero(secs)}.${padZero(ms)}`;
-
-        // Session Time for the counter/badge (approx standard clock elapsed)
-        sessionCounterBadge.textContent = `SESSION_TIME: ${padZero(hrs)}:${padZero(mins)}:${padZero(secs)}`;
+        if (sessionCounterBadge) {
+          sessionCounterBadge.textContent = `SESSION_TIME: ${padZero(hrs)}:${padZero(mins)}:${padZero(secs)}`;
+        }
 
         requestAnimationFrame(updateCounters);
       }
       requestAnimationFrame(updateCounters);
 
       /* ==========================================
-         D. INTERACTIVE CURSOR COORDINATES
+         E. INTERACTIVE CURSOR COORDINATES
          ========================================== */
       const coordsDisplay = document.getElementById("coords-display");
       let mouseX = 0, mouseY = 0;
@@ -840,7 +1657,7 @@
       });
 
       /* ==========================================
-         E. MOTION-FIRST AMBIENT CANVAS ANIMATION
+         F. MOTION-FIRST AMBIENT CANVAS ANIMATION
          ========================================== */
       const canvas = document.getElementById("ambient-canvas");
       const ctx = canvas.getContext("2d");
@@ -852,14 +1669,13 @@
       window.addEventListener("resize", resizeCanvas);
       resizeCanvas();
 
-      // Nodes population
-      const nodesCount = 45;
+      const nodesCount = 40;
       const nodes = [];
 
       for (let i = 0; i < nodesCount; i++) {
         nodes.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
           vx: (Math.random() - 0.5) * 0.4,
           vy: (Math.random() - 0.5) * 0.4,
           r: Math.random() * 2 + 1
@@ -869,29 +1685,24 @@
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Get active styles for the canvas nodes to adapt beautifully on theme switch
         const isHaoqiActive = document.body.classList.contains("theme-haoqi");
-        const nodeColor = isHaoqiActive ? "rgba(0, 184, 98, 0.25)" : "rgba(0, 230, 118, 0.3)";
-        const lineColor = isHaoqiActive ? "rgba(0, 184, 98, 0.06)" : "rgba(0, 230, 118, 0.08)";
-        const activeAccent = isHaoqiActive ? "rgba(0, 184, 98, 0.6)" : "rgba(0, 230, 118, 0.7)";
+        const nodeColor = isHaoqiActive ? "rgba(0, 184, 98, 0.22)" : "rgba(0, 230, 118, 0.26)";
+        const lineColor = isHaoqiActive ? "rgba(0, 184, 98, 0.05)" : "rgba(0, 230, 118, 0.07)";
 
-        // Update and draw nodes
         nodes.forEach((node, idx) => {
           node.x += node.vx;
           node.y += node.vy;
 
-          // Bounce off boundaries
           if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
           if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
 
-          // Mouse attraction force
+          // cursor distance
           const dx = mouseX - node.x;
           const dy = mouseY - node.y;
           const dist = Math.hypot(dx, dy);
           if (dist < 150) {
-            // subtle attraction pull
-            node.x += (dx / dist) * 0.15;
-            node.y += (dy / dist) * 0.15;
+            node.x += (dx / dist) * 0.12;
+            node.y += (dy / dist) * 0.12;
           }
 
           ctx.beginPath();
@@ -899,7 +1710,6 @@
           ctx.fillStyle = nodeColor;
           ctx.fill();
 
-          // Draw links
           for (let j = idx + 1; j < nodesCount; j++) {
             const nextNode = nodes[j];
             const linkDist = Math.hypot(nextNode.x - node.x, nextNode.y - node.y);
@@ -919,7 +1729,7 @@
       animate();
 
       /* ==========================================
-         F. KINETIC TEXT HOVER REACTION
+         G. KINETIC TEXT HOVER REACTION
          ========================================== */
       const kineticWord = document.getElementById("kinetic-word");
       const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -943,6 +1753,272 @@
           }
           iterations += 1 / 3;
         }, 30);
+      });
+
+      /* ==========================================
+         H. APP DETAILS MODAL SPECIFICATION MANAGER
+         ========================================== */
+      const appSpecs = {
+        "flipside": {
+          num: "06",
+          title: "Flipside",
+          tagline: "Shows you the other side of an argument or decision before you commit to it.",
+          year: "2025",
+          desc: "A cognitive simulator that acts as a secure, high-contrast decision support system. It maps binary arguments into contrasting layouts to help builders systematically evaluate risks and trade-offs before executing key updates.",
+          logs: [
+            "[SYS_LOAD] Initializing flipside binary simulator...",
+            "[PARAM] Arguments loaded: [decision_matrix_v1]",
+            "[MODEL] Generating contrast viewpoints...",
+            "[SUCCESS] Decision visualizer compiled successfully.",
+            "[STATUS] Ready to evaluate trade-offs."
+          ]
+        },
+        "leggo": {
+          num: "07",
+          title: "Leggo",
+          tagline: "A habit/letting-go tracker for dropping things that aren't working.",
+          year: "2025",
+          desc: "An optimization tracker built explicitly to minimize sunken costs. Unlike normal trackers that insist on maintaining habits, Leggo logs items to let go of, providing continuous system prompts to discard unproductive workflows.",
+          logs: [
+            "[SYS_LOAD] Instantiating habit release protocol...",
+            "[SCANNER] Checking active behavioral patterns...",
+            "[TELEMETRY] Found: [wasteful_loop_38]",
+            "[ACTION] Recommending letting go of pattern [wasteful_loop_38]",
+            "[SUCCESS] Reclaimed cognitive bandwidth: 22%"
+          ]
+        },
+        "morrow": {
+          num: "08",
+          title: "Morrow",
+          tagline: "Plans tomorrow the night before, so you start the day already decided.",
+          year: "2025",
+          desc: "A deterministic planner that compiles the next day's system operations before bedtime. By pre-deciding decisions, users avoid morning decision fatigue and start the system loop already decided.",
+          logs: [
+            "[SYS_LOAD] Compiling deterministic scheduler...",
+            "[CRON] Reading agenda matrix for next_day...",
+            "[SCHED] Queueing priority nodes...",
+            "[SUCCESS] Agenda baked into solid instructions.",
+            "[STATUS] Standby until system loop reboot."
+          ]
+        },
+        "primer": {
+          num: "09",
+          title: "Primer",
+          tagline: "Quick-start briefings that get you up to speed on a topic before a meeting or task.",
+          year: "2025",
+          desc: "A high-performance text synthesizer that compiles essential domain briefs instantly. It parses complex corporate records and structures a clear, telemetry-style list of action points before meetings.",
+          logs: [
+            "[SYS_LOAD] Launching rapid brief synthesizer...",
+            "[PARSER] Consuming target raw record sheets...",
+            "[MODEL] Extraction logic: active",
+            "[COMPREHEND] Compiling high-density metrics...",
+            "[SUCCESS] Briefing output prepared. 3-sec digest ready."
+          ]
+        },
+        "dossier": {
+          num: "10",
+          title: "Dossier",
+          tagline: "Builds a living profile/reference sheet on a person, company, or topic as you research it.",
+          year: "2025",
+          desc: "An interactive knowledge-management workspace that maps research subjects. It crawls public web archives and compiles structured dossiers containing contact details, investment milestones, and corporate structures.",
+          logs: [
+            "[SYS_LOAD] Initializing active crawler thread...",
+            "[NETWORK] Pinging data streams...",
+            "[COMPILER] Compiling reference metadata database...",
+            "[SYNC] Syncing local cache to profile sheet...",
+            "[SUCCESS] Profile compiled. Storage: 0.14 MB."
+          ]
+        }
+      };
+
+      const overlay = document.getElementById("detail-overlay");
+      const closeDetail = document.getElementById("close-detail");
+
+      // Open detail
+      document.querySelectorAll(".manifest-row").forEach(row => {
+        row.addEventListener("click", () => {
+          const appId = row.getAttribute("data-app-id");
+          const spec = appSpecs[appId];
+          if (!spec) return;
+
+          document.getElementById("detail-num").textContent = spec.num;
+          document.getElementById("detail-title").textContent = spec.title;
+          document.getElementById("detail-year").textContent = spec.year;
+          document.getElementById("detail-description").textContent = spec.desc;
+
+          // Render simulated logs
+          const logsBox = document.getElementById("detail-logs");
+          logsBox.innerHTML = "";
+          spec.logs.forEach((log, idx) => {
+            const line = document.createElement("div");
+            line.className = "tel-line" + (idx === spec.logs.length - 1 ? " accent" : "");
+            line.textContent = log;
+            logsBox.appendChild(line);
+          });
+
+          overlay.style.display = "flex";
+        });
+      });
+
+      // Close modal
+      closeDetail.addEventListener("click", () => {
+        overlay.style.display = "none";
+      });
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          overlay.style.display = "none";
+        }
+      });
+
+      /* ==========================================
+         I. SECURE DISPATCH TELEMETRY SYSTEM
+         ========================================== */
+      const contactForm = document.getElementById("contact-form");
+      const telemetryBox = document.getElementById("telemetry-box");
+
+      contactForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("form-name").value;
+        const email = document.getElementById("form-email").value;
+        const msg = document.getElementById("form-message").value;
+
+        // Show telemetry loading
+        telemetryBox.style.display = "block";
+        telemetryBox.innerHTML = "";
+
+        const logLines = [
+          `[SYS] Initiating secure link payload package...`,
+          `[RESOLVE] Mapping return address to payload [${email}]`,
+          `[CRYPT] Encrypting stream segment: [${name.toUpperCase().substring(0,6)}_LINK]`,
+          `[SYNC] Telemetry protocol: SSL_ESTABLISHED`,
+          `[DISPATCH] Launching package transmission...`,
+          `[STATUS] Awaiting remote system handshakes...`,
+          `[SUCCESS] Connection sequence validated. Packet delivered!`
+        ];
+
+        let lineIdx = 0;
+        function printLogLine() {
+          if (lineIdx < logLines.length) {
+            const line = document.createElement("div");
+            line.className = "telemetry-line" + (lineIdx === logLines.length - 1 ? " success" : "");
+            line.textContent = logLines[lineIdx];
+            telemetryBox.appendChild(line);
+            telemetryBox.scrollTop = telemetryBox.scrollHeight;
+            lineIdx++;
+            setTimeout(printLogLine, 400);
+          } else {
+            // clear form
+            contactForm.reset();
+          }
+        }
+        printLogLine();
+      });
+
+      /* ==========================================
+         J. INTERACTIVE CLI TERMINAL SHELL
+         ========================================== */
+      const termInput = document.getElementById("terminal-input");
+      const termOutput = document.getElementById("terminal-output");
+      const termBox = document.getElementById("terminal-box");
+
+      const commands = {
+        "help": [
+          "Available System Commands:",
+          "  help     - Show list of active commands",
+          "  apps     - List apps currently in active build",
+          "  about    - Displays Levermake's overview and specs",
+          "  contact  - Shows communications and links",
+          "  theme    - Toggles active visual control themes",
+          "  neofetch - Shows beautiful system diagnostics information",
+          "  clear    - Flush the current terminal buffer"
+        ],
+        "apps": [
+          "RECORDED DEVP_TOOLS MANIFEST (STATUS: IN BUILD):",
+          "  06. Flipside  - Cognitive simulator & decision tool",
+          "  07. Leggo     - Habit optimization & release tool",
+          "  08. Morrow    - Deterministic scheduling suite",
+          "  09. Primer    - High-density document synthesizer",
+          "  10. Dossier   - Structured crawler & profile tool"
+        ],
+        "about": [
+          "System Overview:",
+          "  Goes by: Levermake",
+          "  Platform: Founder building new things (AI, APPS, ETC)",
+          "  One-liner: Finds computers genuinely and deeply fun.",
+          "  Tech Stack: TypeScript, Rust, Node, WebGL, Go",
+          "  Working on: GAUGE ENGINE"
+        ],
+        "contact": [
+          "Communications Sector:",
+          "  X / Twitter : https://x.com/levermake",
+          "  GitHub      : https://github.com/levermake",
+          "  Coordinates : Earth"
+        ],
+        "theme": [
+          "Executing theme toggle macro...",
+          "System theme changed."
+        ],
+        "neofetch": [
+          "░██╗░░░░░░░██╗░█████╗░░█████╗░",
+          "░██║░░██╗░░██║██╔══██╗██╔══██╗",
+          "░╚██╗████╗██╔╝██║░░██║██║░░██║",
+          "░░████╔═████║░██║░░██║██║░░██║",
+          "░░╚██╔╝░╚██╔╝░╚█████╔╝╚█████╔╝",
+          "░░░╚═╝░░░╚═╝░░░╚════╝░░╚════╝░",
+          "-----------------------------",
+          "OS: LevermakeOS v1.0.4 x86_64",
+          "Host: Earth Sector (SAST GMT+2)",
+          "Kernel: WebAssembly Static Runtime",
+          "Uptime: ACTIVE SESSION",
+          "Shell: MonoShell v1.0",
+          "Theme: Zero / Haoqi Hybrid System",
+          "Accent: Premium Mint Green (#00E676)"
+        ]
+      };
+
+      termInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const val = termInput.value.trim().toLowerCase();
+          termInput.value = "";
+
+          // Print current command line
+          const cmdLine = document.createElement("div");
+          cmdLine.className = "term-line prompt-line";
+          cmdLine.textContent = `levermake@system:~$ ${val}`;
+          termOutput.appendChild(cmdLine);
+
+          if (val) {
+            if (val === "clear") {
+              termOutput.innerHTML = "";
+            } else if (val === "theme") {
+              // Trigger theme toggle
+              themeToggle.click();
+              commands[val].forEach(line => {
+                const outLine = document.createElement("div");
+                outLine.className = "term-line";
+                outLine.textContent = line;
+                termOutput.appendChild(outLine);
+              });
+            } else if (commands[val]) {
+              commands[val].forEach(line => {
+                const outLine = document.createElement("div");
+                outLine.className = "term-line";
+                outLine.textContent = line;
+                termOutput.appendChild(outLine);
+              });
+            } else {
+              const errLine = document.createElement("div");
+              errLine.className = "term-line error-line";
+              errLine.textContent = `Command not recognized: '${val}'. Type 'help' for options.`;
+              termOutput.appendChild(errLine);
+            }
+          }
+
+          // scroll down
+          termBox.scrollTop = termBox.scrollHeight;
+        }
       });
 
     });
