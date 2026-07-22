@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEVERMAKE — Portfolio & System Manifest</title>
+  <!-- Google Fonts for System-like and Bold Editorial styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* --------------------------------------------------
+       CSS VARIABLES & THEME SETUP
+       -------------------------------------------------- */
+    :root {
+      /* Zero Mood (Default Dark) */
+      --bg-color: #000000;
+      --text-color: #F8FAFC;
+      --text-muted: #64748B;
+      --border-color: #1E293B;
+      --accent-color: #00E676; /* Vivid mint green */
+      --accent-glow: rgba(0, 230, 118, 0.15);
+      --header-bg: rgba(0, 0, 0, 0.85);
+      --row-hover-bg: rgba(0, 230, 118, 0.04);
+      --badge-bg: #0F172A;
+      --badge-text: #00E676;
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --grid-dot-color: rgba(255, 255, 255, 0.07);
+      --canvas-node-color: rgba(0, 230, 118, 0.25);
+      --canvas-line-color: rgba(0, 230, 118, 0.08);
+    }
+
+    body.theme-haoqi {
+      /* Haoqi Mood (Light Editorial) */
+      --bg-color: #F5F4F0; /* Warm paper off-white */
+      --text-color: #111111;
+      --text-muted: #7A7A72;
+      --border-color: #D5D3C9;
+      --accent-color: #00B862; /* Balanced rich mint green */
+      --accent-glow: rgba(0, 184, 98, 0.12);
+      --header-bg: rgba(245, 244, 240, 0.9);
+      --row-hover-bg: rgba(0, 184, 98, 0.05);
+      --badge-bg: #E5E3D8;
+      --badge-text: #00B862;
+      --grid-dot-color: rgba(0, 0, 0, 0.06);
+      --canvas-node-color: rgba(0, 184, 98, 0.2);
+      --canvas-line-color: rgba(0, 184, 98, 0.05);
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+    }
+
+    /* Ambient Background Dot Grid */
+    .ambient-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(var(--grid-dot-color) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* High-Performance Interactive Background Canvas */
+    #ambient-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.5s ease;
+    }
+
+    /* Container alignment & Chrome layout */
+    .app-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      z-index: 10;
+    }
+
+    /* --------------------------------------------------
+       HEADER SECTION
+       -------------------------------------------------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--header-bg);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      transition: border-color 0.4s ease, background-color 0.4s ease;
+    }
+
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .site-logo {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: color 0.4s ease;
+    }
+
+    .site-logo:hover {
+      color: var(--accent-color);
+    }
+
+    .sys-badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 2px 6px;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      text-shadow: 0 0 8px var(--accent-glow);
+      border-radius: 2px;
+      text-transform: uppercase;
+      font-weight: bold;
+      animation: pulse 2s infinite alternate;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .header-center-item {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-center-item span {
+      color: var(--text-color);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .live-clock {
+      font-size: 12px;
+      color: var(--text-color);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-clock::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      box-shadow: 0 0 8px var(--accent-color);
+    }
+
+    /* Theme Toggle Switch */
+    .theme-toggle-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent-color);
+      background-color: var(--row-hover-bg);
+    }
+
+    .theme-toggle-btn span.active-theme {
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    /* --------------------------------------------------
+       HERO SECTION
+       -------------------------------------------------- */
+    .hero-section {
+      padding: 120px 0 80px 0;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    /* FWA style small badge/counter motif */
+    .fwa-counter-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 32px;
+      font-size: 11px;
+      color: var(--text-muted);
+      gap: 8px;
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    body.theme-haoqi .fwa-counter-badge {
+      background-color: rgba(0, 0, 0, 0.01);
+    }
+
+    .fwa-counter-badge .index-num {
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+
+    /* Giant bold single-word statement with kinetic hover/glitch feel */
+    .hero-huge-word {
+      font-family: var(--font-heading);
+      font-weight: 900;
+      font-size: clamp(60px, 14vw, 150px);
+      line-height: 0.85;
+      letter-spacing: -0.05em;
+      text-transform: uppercase;
+      color: var(--text-color);
+      margin-bottom: 36px;
+      position: relative;
+      cursor: default;
+      user-select: none;
+      display: inline-block;
+      transition: transform 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    /* Subtle split kinetic text effect on hover */
+    .hero-huge-word:hover {
+      text-shadow: 2px -1px 0 var(--accent-color), -1px 2px 0 rgba(255, 0, 128, 0.5);
+    }
+
+    /* Sub-headline & bio lines */
+    .hero-bio-container {
+      max-width: 680px;
+      margin-top: 24px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .hero-bio {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-color);
+      margin-bottom: 28px;
+    }
+
+    .hero-bio p {
+      margin-bottom: 12px;
+    }
+
+    .hero-bio em {
+      font-style: italic;
+      color: var(--accent-color);
+    }
+
+    /* Bio Social Link Pill buttons */
+    .hero-social-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .social-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 2px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 12px;
+      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .social-pill:hover {
+      border-color: var(--accent-color);
+      background-color: var(--row-hover-bg);
+      color: var(--accent-color);
+    }
+
+    .social-pill .arrow {
+      font-size: 10px;
+      transition: transform 0.2s ease;
+    }
+
+    .social-pill:hover .arrow {
+      transform: translate(2px, -2px);
+    }
+
+    /* --------------------------------------------------
+       MANIFEST / PROJECTS SECTION
+       -------------------------------------------------- */
+    .apps-section {
+      padding: 100px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .section-count {
+      font-size: 12px;
+      color: var(--accent-color);
+    }
+
+    /* Manifest style table layout */
+    .manifest-list {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .manifest-header {
+      display: grid;
+      grid-template-columns: 80px 220px 1fr 100px 140px;
+      padding: 12px 16px;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .manifest-row {
+      display: grid;
+      grid-template-columns: 80px 220px 1fr 100px 140px;
+      padding: 24px 16px;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      text-decoration: none;
+      color: var(--text-color);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .manifest-row:hover {
+      background-color: var(--row-hover-bg);
+      border-color: var(--accent-color);
+    }
+
+    .manifest-row .col-num {
+      font-size: 12px;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .manifest-row:hover .col-num {
+      color: var(--accent-color);
+    }
+
+    .manifest-row .col-name {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .manifest-row .col-tagline {
+      color: var(--text-color);
+      font-size: 14px;
+      padding-right: 24px;
+    }
+
+    .manifest-row .col-year {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .manifest-row .col-status {
+      justify-self: start;
+    }
+
+    .status-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .manifest-row:hover .status-tag {
+      border-color: var(--accent-color);
+    }
+
+    /* Responsive grid styles */
+    @media (max-width: 900px) {
+      .manifest-header {
+        display: none;
+      }
+      .manifest-row {
+        grid-template-columns: 50px 1fr 120px;
+        grid-template-areas:
+          "num name status"
+          "num tagline tagline"
+          "num year year";
+        gap: 12px 8px;
+        padding: 20px 12px;
+      }
+      .manifest-row .col-num {
+        grid-area: num;
+        align-self: start;
+        font-size: 14px;
+        padding-top: 2px;
+      }
+      .manifest-row .col-name {
+        grid-area: name;
+        font-size: 18px;
+      }
+      .manifest-row .col-tagline {
+        grid-area: tagline;
+        padding-right: 0;
+        font-size: 13px;
+      }
+      .manifest-row .col-year {
+        grid-area: year;
+        font-size: 12px;
+      }
+      .manifest-row .col-status {
+        grid-area: status;
+        justify-self: end;
+      }
+    }
+
+    /* --------------------------------------------------
+       FOOTER SECTION
+       -------------------------------------------------- */
+    .site-footer {
+      padding: 120px 0 60px 0;
+      position: relative;
+    }
+
+    .footer-cta {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: clamp(32px, 6vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      margin-bottom: 80px;
+      color: var(--text-color);
+      border-left: 4px solid var(--accent-color);
+      padding-left: 24px;
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      padding-top: 32px;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-copyright {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-color);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0% {
+        opacity: 0.85;
+        box-shadow: 0 0 4px var(--accent-glow);
+      }
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 12px var(--accent-glow);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Dot Grid background -->
+  <div class="ambient-grid"></div>
+
+  <!-- Background Dynamic Node Canvas -->
+  <canvas id="ambient-canvas"></canvas>
+
+  <div class="app-container">
+
+    <!-- --------------------------------------------------
+         1. HEADER SECTION
+         -------------------------------------------------- -->
+    <header class="site-header">
+      <div class="header-inner">
+        <!-- Logo / Name & Status -->
+        <div class="header-left">
+          <a href="#" class="site-logo">LEVERMAKE</a>
+          <div class="sys-badge" id="system-badge">SYS_ALIVE</div>
+        </div>
+
+        <!-- Center Diagnostics (Uptime & Cursor coordinates) -->
+        <div class="header-center">
+          <div class="header-center-item">
+            UPTIME: <span id="uptime-counter">00:00:00.00</span>
+          </div>
+          <div class="header-center-item">
+            COORD: <span id="coords-display">0000X 0000Y</span>
+          </div>
+        </div>
+
+        <!-- Right System clock (South Africa Local) & Theme switcher -->
+        <div class="header-right">
+          <div class="live-clock" id="sa-clock">--:--:-- SAST</div>
+          <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Theme">
+            THEME[<span id="theme-label" class="active-theme">ZERO</span>]
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- --------------------------------------------------
+         2. HERO SECTION
+         -------------------------------------------------- -->
+    <section class="hero-section">
+      <!-- FWA-style counter/badge motif -->
+      <div class="fwa-counter-badge">
+        <span class="index-num">[01]</span>
+        <span>INDEX // STACK CONTROL SECTOR</span>
+        <span>•</span>
+        <span id="session-counter-badge">SESSION_TIME: 00:00:00</span>
+      </div>
+
+      <!-- Giant single word statement -->
+      <div>
+        <h1 class="hero-huge-word" id="kinetic-word">COMPUTERS</h1>
+      </div>
+
+      <!-- Terse system-like voice Bio -->
+      <div class="hero-bio-container">
+        <div class="hero-subtitle">// ROOT BIO MANIFEST</div>
+        <div class="hero-bio">
+          <p>Goes by <strong>Levermake</strong>. Operating from coordinates: <em>Earth</em>.</p>
+          <p>Founder building new things. Finds computers genuinely and deeply fun. Working on <strong>Gauge</strong>, crafting workflows, building systems that scale and matter.</p>
+        </div>
+
+        <!-- Social links as interactive pills -->
+        <div class="hero-social-links">
+          <a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
+            <span>X / @levermake</span>
+            <span class="arrow">↗</span>
+          </a>
+          <a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer" class="social-pill">
+            <span>GitHub / @levermake</span>
+            <span class="arrow">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------
+         3. BUILDING / APPS SECTION (Manifest)
+         -------------------------------------------------- -->
+    <section class="apps-section">
+      <div class="section-header">
+        <h2 class="section-title">// DEVP_TOOLS MANIFEST — 5 APPS IN ACTIVE BUILD</h2>
+        <div class="section-count">[05 ITEMS RECORDED]</div>
+      </div>
+
+      <div class="manifest-list">
+        <!-- Row Header -->
+        <div class="manifest-header">
+          <div>ID</div>
+          <div>NAME</div>
+          <div>TAGLINE / COGNITIVE SCOPE</div>
+          <div>YEAR</div>
+          <div>STATUS</div>
+        </div>
+
+        <!-- Row 06: Flipside -->
+        <div class="manifest-row">
+          <div class="col-num">06</div>
+          <div class="col-name">Flipside</div>
+          <div class="col-tagline">Shows you the other side of an argument or decision before you commit to it.</div>
+          <div class="col-year">2025</div>
+          <div class="col-status">
+            <span class="status-tag">Active Build</span>
+          </div>
+        </div>
+
+        <!-- Row 07: Leggo -->
+        <div class="manifest-row">
+          <div class="col-num">07</div>
+          <div class="col-name">Leggo</div>
+          <div class="col-tagline">A habit/letting-go tracker for dropping things that aren't working.</div>
+          <div class="col-year">2025</div>
+          <div class="col-status">
+            <span class="status-tag">Active Build</span>
+          </div>
+        </div>
+
+        <!-- Row 08: Morrow -->
+        <div class="manifest-row">
+          <div class="col-num">08</div>
+          <div class="col-name">Morrow</div>
+          <div class="col-tagline">Plans tomorrow the night before, so you start the day already decided.</div>
+          <div class="col-year">2025</div>
+          <div class="col-status">
+            <span class="status-tag">Active Build</span>
+          </div>
+        </div>
+
+        <!-- Row 09: Primer -->
+        <div class="manifest-row">
+          <div class="col-num">09</div>
+          <div class="col-name">Primer</div>
+          <div class="col-tagline">Quick-start briefings that get you up to speed on a topic before a meeting or task.</div>
+          <div class="col-year">2025</div>
+          <div class="col-status">
+            <span class="status-tag">Active Build</span>
+          </div>
+        </div>
+
+        <!-- Row 10: Dossier -->
+        <div class="manifest-row">
+          <div class="col-num">10</div>
+          <div class="col-name">Dossier</div>
+          <div class="col-tagline">Builds a living profile/reference sheet on a person, company, or topic as you research it.</div>
+          <div class="col-year">2025</div>
+          <div class="col-status">
+            <span class="status-tag">Active Build</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- --------------------------------------------------
+         4. FOOTER SECTION
+         -------------------------------------------------- -->
+    <footer class="site-footer">
+      <!-- High contrast closing statement -->
+      <div class="footer-cta">
+        SYSTEM STATUS: ONLINE.<br>
+        LET'S BUILD SOMETHING EXTRAORDINARY.
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copyright">
+          <span>[ © 2025 LEVERMAKE ]</span>
+          <span>•</span>
+          <span>EST. COGNITIVE SECTOR: EARTH</span>
+        </div>
+
+        <div class="footer-links">
+          <a href="https://x.com/levermake" target="_blank" rel="noopener noreferrer">X / TWITTER</a>
+          <span>/</span>
+          <a href="https://github.com/levermake" target="_blank" rel="noopener noreferrer">GITHUB</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- --------------------------------------------------
+       5. JAVASCRIPT SYSTEM ENGINE
+       -------------------------------------------------- -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+
+      /* ==========================================
+         A. THEME CONTROLLER
+         ========================================== */
+      const themeToggle = document.getElementById("theme-toggle");
+      const themeLabel = document.getElementById("theme-label");
+
+      // Load saved theme or default to Zero
+      const savedTheme = localStorage.getItem("levermake-theme") || "zero";
+      if (savedTheme === "haoqi") {
+        document.body.classList.add("theme-haoqi");
+        themeLabel.textContent = "HAOQI";
+      } else {
+        document.body.classList.remove("theme-haoqi");
+        themeLabel.textContent = "ZERO";
+      }
+
+      themeToggle.addEventListener("click", () => {
+        const isHaoqi = document.body.classList.toggle("theme-haoqi");
+        const theme = isHaoqi ? "haoqi" : "zero";
+        themeLabel.textContent = isHaoqi ? "HAOQI" : "ZERO";
+        localStorage.setItem("levermake-theme", theme);
+      });
+
+      /* ==========================================
+         B. LIVE SOUTH AFRICA CLOCK (SAST: UTC+2)
+         ========================================== */
+      const clockElement = document.getElementById("sa-clock");
+
+      function updateClock() {
+        const options = {
+          timeZone: "Africa/Johannesburg",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        };
+        const formatter = new Intl.DateTimeFormat([], options);
+        clockElement.textContent = `${formatter.format(new Date())} SAST`;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      /* ==========================================
+         C. SESSION & SYSTEM UPTIME COUNTER
+         ========================================== */
+      const startTime = performance.now();
+      const loadDate = Date.now();
+      const uptimeCounter = document.getElementById("uptime-counter");
+      const sessionCounterBadge = document.getElementById("session-counter-badge");
+
+      function padZero(num, length = 2) {
+        return String(num).padStart(length, '0');
+      }
+
+      function updateCounters() {
+        // High-precision Uptime
+        const elapsedMs = performance.now() - startTime;
+        const totalSecs = Math.floor(elapsedMs / 1000);
+        const ms = Math.floor((elapsedMs % 1000) / 10);
+
+        const hrs = Math.floor(totalSecs / 3600);
+        const mins = Math.floor((totalSecs % 3600) / 60);
+        const secs = totalSecs % 60;
+
+        uptimeCounter.textContent = `${padZero(hrs)}:${padZero(mins)}:${padZero(secs)}.${padZero(ms)}`;
+
+        // Session Time for the counter/badge (approx standard clock elapsed)
+        sessionCounterBadge.textContent = `SESSION_TIME: ${padZero(hrs)}:${padZero(mins)}:${padZero(secs)}`;
+
+        requestAnimationFrame(updateCounters);
+      }
+      requestAnimationFrame(updateCounters);
+
+      /* ==========================================
+         D. INTERACTIVE CURSOR COORDINATES
+         ========================================== */
+      const coordsDisplay = document.getElementById("coords-display");
+      let mouseX = 0, mouseY = 0;
+
+      window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        coordsDisplay.textContent = `${padZero(mouseX, 4)}X ${padZero(mouseY, 4)}Y`;
+      });
+
+      /* ==========================================
+         E. MOTION-FIRST AMBIENT CANVAS ANIMATION
+         ========================================== */
+      const canvas = document.getElementById("ambient-canvas");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      // Nodes population
+      const nodesCount = 45;
+      const nodes = [];
+
+      for (let i = 0; i < nodesCount; i++) {
+        nodes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 2 + 1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Get active styles for the canvas nodes to adapt beautifully on theme switch
+        const isHaoqiActive = document.body.classList.contains("theme-haoqi");
+        const nodeColor = isHaoqiActive ? "rgba(0, 184, 98, 0.25)" : "rgba(0, 230, 118, 0.3)";
+        const lineColor = isHaoqiActive ? "rgba(0, 184, 98, 0.06)" : "rgba(0, 230, 118, 0.08)";
+        const activeAccent = isHaoqiActive ? "rgba(0, 184, 98, 0.6)" : "rgba(0, 230, 118, 0.7)";
+
+        // Update and draw nodes
+        nodes.forEach((node, idx) => {
+          node.x += node.vx;
+          node.y += node.vy;
+
+          // Bounce off boundaries
+          if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+          if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+          // Mouse attraction force
+          const dx = mouseX - node.x;
+          const dy = mouseY - node.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 150) {
+            // subtle attraction pull
+            node.x += (dx / dist) * 0.15;
+            node.y += (dy / dist) * 0.15;
+          }
+
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+          ctx.fillStyle = nodeColor;
+          ctx.fill();
+
+          // Draw links
+          for (let j = idx + 1; j < nodesCount; j++) {
+            const nextNode = nodes[j];
+            const linkDist = Math.hypot(nextNode.x - node.x, nextNode.y - node.y);
+            if (linkDist < 120) {
+              ctx.beginPath();
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(nextNode.x, nextNode.y);
+              ctx.strokeStyle = lineColor;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      /* ==========================================
+         F. KINETIC TEXT HOVER REACTION
+         ========================================== */
+      const kineticWord = document.getElementById("kinetic-word");
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const originalText = kineticWord.textContent;
+
+      kineticWord.addEventListener("mouseover", () => {
+        let iterations = 0;
+        const interval = setInterval(() => {
+          kineticWord.textContent = originalText
+            .split("")
+            .map((char, index) => {
+              if (index < iterations) {
+                return originalText[index];
+              }
+              return characters[Math.floor(Math.random() * characters.length)];
+            })
+            .join("");
+
+          if (iterations >= originalText.length) {
+            clearInterval(interval);
+          }
+          iterations += 1 / 3;
+        }, 30);
+      });
+
+    });
+  </script>
+</body>
+</html>
