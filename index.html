@@ -298,6 +298,61 @@
       position: relative;
     }
 
+    /* Floating Authentic Zero/FWA System Metric Badge */
+    .floating-metric-badge {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      border: 1px solid var(--accent-color);
+      background-color: var(--bg-color);
+      padding: 10px 14px;
+      border-radius: 2px;
+      z-index: 999;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      line-height: 1.4;
+      color: var(--text-color);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-glow);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 170px;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+    .floating-metric-badge:hover {
+      box-shadow: 0 0 15px var(--accent-color);
+      transform: translateY(-2px);
+    }
+    .metric-badge-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      font-weight: bold;
+      color: var(--text-color);
+      letter-spacing: 0.05em;
+    }
+    .metric-badge-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 4px;
+    }
+    .metric-badge-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .metric-badge-lbl {
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .metric-badge-val {
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+
     /* FWA style small badge/counter motif */
     .fwa-counter-badge {
       display: inline-flex;
@@ -1125,15 +1180,72 @@
         box-shadow: 0 0 12px var(--accent-glow);
       }
     }
+
+    /* RETRO CRT RETINAL SCANLINE OVERLAY EFFECT */
+    .crt-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.16) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.015), rgba(0, 0, 255, 0.04));
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+      z-index: 99999;
+      opacity: 0.85;
+      display: none;
+    }
+
+    body.crt-active .crt-overlay {
+      display: block;
+      animation: crt-flicker 0.15s infinite;
+    }
+
+    @keyframes crt-flicker {
+      0% { opacity: 0.82; }
+      50% { opacity: 0.88; }
+      100% { opacity: 0.82; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- CRT Retro Retinal Scanline Overlay -->
+  <div class="crt-overlay"></div>
 
   <!-- Ambient Dot Grid background -->
   <div class="ambient-grid"></div>
 
   <!-- Background Dynamic Node Canvas -->
   <canvas id="ambient-canvas"></canvas>
+
+  <!-- Floating FWA/Zero System Badge -->
+  <div class="floating-metric-badge" id="float-badge">
+    <div class="metric-badge-header">
+      <span>SYS_INTEL</span>
+      <span style="color: var(--accent-color); font-weight: bold;">[01]</span>
+    </div>
+    <div class="metric-badge-row">
+      <span class="metric-badge-lbl">SEGMENT</span>
+      <span class="metric-badge-val">LMRK-01</span>
+    </div>
+    <div class="metric-badge-row">
+      <span class="metric-badge-lbl">LOC_PATH</span>
+      <span class="metric-badge-val" id="badge-loc">#/HOME</span>
+    </div>
+    <div class="metric-badge-row">
+      <span class="metric-badge-lbl">SYS_FPS</span>
+      <span class="metric-badge-val" id="badge-fps">00 FPS</span>
+    </div>
+    <div class="metric-badge-row">
+      <span class="metric-badge-lbl">INTERACTS</span>
+      <span class="metric-badge-val" id="badge-interacts">00</span>
+    </div>
+    <div class="metric-badge-row">
+      <span class="metric-badge-lbl">CUR_COORD</span>
+      <span class="metric-badge-val" id="badge-coords" style="font-size: 9px;">0000X, 0000Y</span>
+    </div>
+  </div>
 
   <div class="app-container">
 
@@ -1170,6 +1282,9 @@
         <!-- Right System clock (South Africa Local) & Theme switcher -->
         <div class="header-right">
           <div class="live-clock" id="sa-clock">--:--:-- SAST</div>
+          <button class="theme-toggle-btn" id="crt-toggle" aria-label="Toggle CRT Screen filter" style="margin-right: 2px;">
+            CRT[<span id="crt-label" style="color: var(--text-muted);">OFF</span>]
+          </button>
           <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Theme">
             THEME[<span id="theme-label" class="active-theme">ZERO</span>]
           </button>
@@ -1197,10 +1312,10 @@
 
         <!-- Bio Details -->
         <div class="hero-bio-container">
-          <div class="hero-subtitle">// ROOT PORTFOLIO BIO</div>
+          <div class="hero-subtitle">// SYSTEM ROOT DIRECTIVE</div>
           <div class="hero-bio">
-            <p>Goes by <strong>Levermake</strong>. Operating from coordinates: <em>Earth</em>.</p>
-            <p>Founder building new things. Finds computers genuinely and deeply fun. Working on <strong>Gauge</strong>, crafting workflows, building systems that scale and matter.</p>
+            <p>GOES BY: <strong>LEVERMAKE</strong>. OPERATING FROM GEOPOLITICAL SECTOR: <em>EARTH</em>.</p>
+            <p>FOUNDER BUILDING HUMAN INFRASTRUCTURE FOR THE INTELLECTUAL AGE. DISCOVERS COMPUTERS TO BE GENUINELY AND DEEPLY FUN. SYSTEM OPERATOR ON <strong>GAUGE</strong>, DESIGNING HIGHER-DIMENSIONAL WORKFLOWS AND REVERSE-ENGINEERING HUMAN LIMITS.</p>
           </div>
 
           <!-- Social link pills -->
@@ -1246,10 +1361,10 @@
           <div class="manifest-row" data-app-id="flipside">
             <div class="col-num">06</div>
             <div class="col-name">Flipside</div>
-            <div class="col-tagline">Shows you the other side of an argument or decision before you commit to it.</div>
+            <div class="col-tagline">REVEALS INTERIOR POLAR ARGUMENTS AND OPPOSING FORCES PRIOR TO COMMITMENT PATHS.</div>
             <div class="col-year">2025</div>
             <div class="col-status">
-              <span class="status-tag">Active Build</span>
+              <span class="status-tag">ACTIVE BUILD</span>
             </div>
             <div class="col-action">SPEC↗</div>
           </div>
@@ -1258,10 +1373,10 @@
           <div class="manifest-row" data-app-id="leggo">
             <div class="col-num">07</div>
             <div class="col-name">Leggo</div>
-            <div class="col-tagline">A habit/letting-go tracker for dropping things that aren't working.</div>
+            <div class="col-tagline">BEHAVIORAL ATTRITION ENGINE DESELECTING PARADIGMS THAT OBSTRUCT DYNAMIC THROUGHPUT.</div>
             <div class="col-year">2025</div>
             <div class="col-status">
-              <span class="status-tag">Active Build</span>
+              <span class="status-tag">ACTIVE BUILD</span>
             </div>
             <div class="col-action">SPEC↗</div>
           </div>
@@ -1270,10 +1385,10 @@
           <div class="manifest-row" data-app-id="morrow">
             <div class="col-num">08</div>
             <div class="col-name">Morrow</div>
-            <div class="col-tagline">Plans tomorrow the night before, so you start the day already decided.</div>
+            <div class="col-tagline">BREADCRUMB COMPLIATION ARCHITECTURE TO RESOLVE FUTURE ACTIONS PRIOR TO SEQUENCE TRIGGER.</div>
             <div class="col-year">2025</div>
             <div class="col-status">
-              <span class="status-tag">Active Build</span>
+              <span class="status-tag">ACTIVE BUILD</span>
             </div>
             <div class="col-action">SPEC↗</div>
           </div>
@@ -1282,10 +1397,10 @@
           <div class="manifest-row" data-app-id="primer">
             <div class="col-num">09</div>
             <div class="col-name">Primer</div>
-            <div class="col-tagline">Quick-start briefings that get you up to speed on a topic before a meeting or task.</div>
+            <div class="col-tagline">HIGH-DENSITY COMPACT SYNOPSIS UTILITIES DELIVERING ZERO-DELAY COGNITIVE BOOTSTRAPPING.</div>
             <div class="col-year">2025</div>
             <div class="col-status">
-              <span class="status-tag">Active Build</span>
+              <span class="status-tag">ACTIVE BUILD</span>
             </div>
             <div class="col-action">SPEC↗</div>
           </div>
@@ -1294,10 +1409,10 @@
           <div class="manifest-row" data-app-id="dossier">
             <div class="col-num">10</div>
             <div class="col-name">Dossier</div>
-            <div class="col-tagline">Builds a living profile/reference sheet on a person, company, or topic as you research it.</div>
+            <div class="col-tagline">LIVE-UPDATED METADATA TARGET PROFILE SHEETS AGGREGATING SYSTEM INVENTORIES ON TARGET ENTITIES.</div>
             <div class="col-year">2025</div>
             <div class="col-status">
-              <span class="status-tag">Active Build</span>
+              <span class="status-tag">ACTIVE BUILD</span>
             </div>
             <div class="col-action">SPEC↗</div>
           </div>
@@ -1516,6 +1631,131 @@
     document.addEventListener("DOMContentLoaded", () => {
 
       /* ==========================================
+         00. AUDIO SYNTHESIZER ENGINE (WEB AUDIO API)
+         ========================================== */
+      let audioCtx = null;
+
+      function initAudio() {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === "suspended") {
+          audioCtx.resume();
+        }
+      }
+
+      function playClick() {
+        try {
+          initAudio();
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
+
+          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.05);
+        } catch(e) {}
+      }
+
+      function playKeystroke() {
+        try {
+          initAudio();
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(400, audioCtx.currentTime + 0.015);
+
+          gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.02);
+        } catch(e) {}
+      }
+
+      function playSweep() {
+        try {
+          initAudio();
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.15);
+
+          gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+        } catch(e) {}
+      }
+
+      // Add global mechanical audio UI click and switch triggers
+      document.addEventListener("click", (e) => {
+        const target = e.target;
+        if (!target) return;
+        if (target.classList.contains("nav-link") || target.closest(".nav-link")) {
+          playSweep();
+        } else if (target.classList.contains("manifest-row") || target.closest(".manifest-row") || target.id === "theme-toggle" || target.closest("#theme-toggle")) {
+          playSweep();
+        } else if (target.tagName === "BUTTON" || target.tagName === "A" || target.closest("button") || target.closest("a")) {
+          playClick();
+        }
+      });
+
+      /* ==========================================
+         0. FLOATING SYSTEM METRICS INGEST
+         ========================================== */
+      let interactionCount = 0;
+      let lastFpsTime = performance.now();
+      let frames = 0;
+      let fps = 0;
+
+      function registerInteraction() {
+        interactionCount++;
+        const badgeInteracts = document.getElementById("badge-interacts");
+        if (badgeInteracts) {
+          badgeInteracts.textContent = String(interactionCount).padStart(2, "0");
+        }
+      }
+      window.addEventListener("click", registerInteraction);
+      window.addEventListener("keydown", registerInteraction);
+
+      function updateFpsMeter() {
+        frames++;
+        const now = performance.now();
+        if (now >= lastFpsTime + 1000) {
+          fps = Math.round((frames * 1000) / (now - lastFpsTime));
+          const badgeFps = document.getElementById("badge-fps");
+          if (badgeFps) {
+            badgeFps.textContent = `${fps} FPS`;
+          }
+          frames = 0;
+          lastFpsTime = now;
+        }
+      }
+
+      /* ==========================================
          A. ROUTING SYSTEM
          ========================================== */
       const routes = {
@@ -1537,6 +1777,12 @@
       function router() {
         const hash = window.location.hash || "#/home";
         const viewId = routes[hash] || "view-home";
+
+        // Update floating badge location
+        const badgeLoc = document.getElementById("badge-loc");
+        if (badgeLoc) {
+          badgeLoc.textContent = hash.toUpperCase();
+        }
 
         // Deactivate all views and nav items
         document.querySelectorAll(".site-view").forEach(view => {
@@ -1597,6 +1843,40 @@
       });
 
       /* ==========================================
+         B2. CRT SCREEN CONTROLLER
+         ========================================== */
+      const crtToggle = document.getElementById("crt-toggle");
+      const crtLabel = document.getElementById("crt-label");
+
+      const savedCrt = localStorage.getItem("levermake-crt") || "off";
+      if (savedCrt === "on") {
+        document.body.classList.add("crt-active");
+        if (crtLabel) {
+          crtLabel.textContent = "ON";
+          crtLabel.style.color = "var(--accent-color)";
+        }
+      } else {
+        document.body.classList.remove("crt-active");
+        if (crtLabel) {
+          crtLabel.textContent = "OFF";
+          crtLabel.style.color = "var(--text-muted)";
+        }
+      }
+
+      if (crtToggle) {
+        crtToggle.addEventListener("click", () => {
+          const isCrt = document.body.classList.toggle("crt-active");
+          const state = isCrt ? "on" : "off";
+          if (crtLabel) {
+            crtLabel.textContent = isCrt ? "ON" : "OFF";
+            crtLabel.style.color = isCrt ? "var(--accent-color)" : "var(--text-muted)";
+          }
+          localStorage.setItem("levermake-crt", state);
+          playSweep(); // trigger tactical sensory sweep
+        });
+      }
+
+      /* ==========================================
          C. LIVE SOUTH AFRICA CLOCK (SAST: UTC+2)
          ========================================== */
       const clockElement = document.getElementById("sa-clock");
@@ -1648,12 +1928,18 @@
          E. INTERACTIVE CURSOR COORDINATES
          ========================================== */
       const coordsDisplay = document.getElementById("coords-display");
+      const badgeCoords = document.getElementById("badge-coords");
       let mouseX = 0, mouseY = 0;
 
       window.addEventListener("mousemove", (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        coordsDisplay.textContent = `${padZero(mouseX, 4)}X ${padZero(mouseY, 4)}Y`;
+        const xStr = padZero(mouseX, 4);
+        const yStr = padZero(mouseY, 4);
+        coordsDisplay.textContent = `${xStr}X ${yStr}Y`;
+        if (badgeCoords) {
+          badgeCoords.textContent = `${xStr}X, ${yStr}Y`;
+        }
       });
 
       /* ==========================================
@@ -1688,6 +1974,9 @@
         const isHaoqiActive = document.body.classList.contains("theme-haoqi");
         const nodeColor = isHaoqiActive ? "rgba(0, 184, 98, 0.22)" : "rgba(0, 230, 118, 0.26)";
         const lineColor = isHaoqiActive ? "rgba(0, 184, 98, 0.05)" : "rgba(0, 230, 118, 0.07)";
+
+        // Update live system FPS metrics
+        updateFpsMeter();
 
         nodes.forEach((node, idx) => {
           node.x += node.vx;
@@ -1729,31 +2018,51 @@
       animate();
 
       /* ==========================================
-         G. KINETIC TEXT HOVER REACTION
+         G. KINETIC TEXT HOVER REACTION & AUTOMATED PHRASE CYCLER
          ========================================== */
       const kineticWord = document.getElementById("kinetic-word");
       const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      const originalText = kineticWord.textContent;
+      const phrases = ["COMPUTERS", "INFRASTRUCTURE", "WORKFLOWS", "INTERFACE", "SYSTEMS"];
+      let phraseIdx = 0;
+      let scrambleInterval = null;
 
-      kineticWord.addEventListener("mouseover", () => {
+      function triggerScramble(targetWord) {
+        if (scrambleInterval) clearInterval(scrambleInterval);
         let iterations = 0;
-        const interval = setInterval(() => {
-          kineticWord.textContent = originalText
+
+        scrambleInterval = setInterval(() => {
+          kineticWord.textContent = targetWord
             .split("")
             .map((char, index) => {
               if (index < iterations) {
-                return originalText[index];
+                return targetWord[index];
               }
               return characters[Math.floor(Math.random() * characters.length)];
             })
             .join("");
 
-          if (iterations >= originalText.length) {
-            clearInterval(interval);
+          if (iterations >= targetWord.length) {
+            clearInterval(scrambleInterval);
           }
           iterations += 1 / 3;
-        }, 30);
+        }, 35);
+      }
+
+      // Hover triggers scramble of the current word
+      kineticWord.addEventListener("mouseover", () => {
+        triggerScramble(phrases[phraseIdx]);
       });
+
+      // Automatic phrase cycle loop every 4.5 seconds
+      setInterval(() => {
+        phraseIdx = (phraseIdx + 1) % phrases.length;
+        triggerScramble(phrases[phraseIdx]);
+      }, 4500);
+
+      // Trigger initial on load
+      setTimeout(() => {
+        triggerScramble(phrases[phraseIdx]);
+      }, 800);
 
       /* ==========================================
          H. APP DETAILS MODAL SPECIFICATION MANAGER
@@ -1761,72 +2070,72 @@
       const appSpecs = {
         "flipside": {
           num: "06",
-          title: "Flipside",
-          tagline: "Shows you the other side of an argument or decision before you commit to it.",
+          title: "FLIPSIDE",
+          tagline: "REVEALS INTERIOR POLAR ARGUMENTS AND OPPOSING FORCES PRIOR TO COMMITMENT PATHS.",
           year: "2025",
-          desc: "A cognitive simulator that acts as a secure, high-contrast decision support system. It maps binary arguments into contrasting layouts to help builders systematically evaluate risks and trade-offs before executing key updates.",
+          desc: "A HIGH-CONTRAST CONTRA-DEDUCTION ENGINE THAT DISSECTS STRATEGIC PROPOSALS INTO CO-EQUAL OPPOSING ARCHITECTURES, REVEALING CRITICAL FRICTION NODES BEFORE FINAL EXECUTION PATHS ARE COMMITTED TO DISK.",
           logs: [
-            "[SYS_LOAD] Initializing flipside binary simulator...",
-            "[PARAM] Arguments loaded: [decision_matrix_v1]",
-            "[MODEL] Generating contrast viewpoints...",
-            "[SUCCESS] Decision visualizer compiled successfully.",
-            "[STATUS] Ready to evaluate trade-offs."
+            "[SYS_LOAD] INITIATING POLAR COMPARISON SIMULATOR...",
+            "[PARAM] DISCOVERY ARGS BINDING: [DECISION_MATRIX_V1]",
+            "[MODEL] POLARIZING BIAS SEGMENTS...",
+            "[SUCCESS] CONTRAST MATRIX VERIFIED AND COMPILED.",
+            "[STATUS] SYSTEM STANDBY: AWAITING TRADE-OFF METRICS."
           ]
         },
         "leggo": {
           num: "07",
-          title: "Leggo",
-          tagline: "A habit/letting-go tracker for dropping things that aren't working.",
+          title: "LEGGO",
+          tagline: "BEHAVIORAL ATTRITION ENGINE DESELECTING PARADIGMS THAT OBSTRUCT DYNAMIC THROUGHPUT.",
           year: "2025",
-          desc: "An optimization tracker built explicitly to minimize sunken costs. Unlike normal trackers that insist on maintaining habits, Leggo logs items to let go of, providing continuous system prompts to discard unproductive workflows.",
+          desc: "A COGNITIVE PRUNING ENGINE BUILT ON DISCARD DIRECTIVES rather than pursuit logic. PINPOINTS UNPRODUCTIVE ASSETS, WORKFLOW DEBTS, AND OBSOLETE SYSTEMS FOR IMMEDIATE DEPLETION TO LIBERATE DYNAMIC BANDWIDTH.",
           logs: [
-            "[SYS_LOAD] Instantiating habit release protocol...",
-            "[SCANNER] Checking active behavioral patterns...",
-            "[TELEMETRY] Found: [wasteful_loop_38]",
-            "[ACTION] Recommending letting go of pattern [wasteful_loop_38]",
-            "[SUCCESS] Reclaimed cognitive bandwidth: 22%"
+            "[SYS_LOAD] BOOTSTRAPPING DESTRUCTION SUB-ROUTINE...",
+            "[SCANNER] TRACING RESIDUAL BEHAVIOR LOOPS...",
+            "[TELEMETRY] LOCATED FRICTION THREAD: [WASTEFUL_LOOP_38]",
+            "[ACTION] DISCARD PROMPT GENERATED: PATTERN TERMINATED.",
+            "[SUCCESS] RECLAIMED BANDWIDTH DOCK: 22%"
           ]
         },
         "morrow": {
           num: "08",
-          title: "Morrow",
-          tagline: "Plans tomorrow the night before, so you start the day already decided.",
+          title: "MORROW",
+          tagline: "BREADCRUMB COMPLIATION ARCHITECTURE TO RESOLVE FUTURE ACTIONS PRIOR TO SEQUENCE TRIGGER.",
           year: "2025",
-          desc: "A deterministic planner that compiles the next day's system operations before bedtime. By pre-deciding decisions, users avoid morning decision fatigue and start the system loop already decided.",
+          desc: "A DETERMINISTIC SCHEDULING PROTOCOL DESIGNED TO PRE-BAKE OPERATIONAL FLOWS THE NIGHT BEFORE. BY GENERATING COMPLIED AGENDA LOGS PRIOR TO SLEEP STATE, MORROW ELIMINATES WAKING DECISION DRIFT.",
           logs: [
-            "[SYS_LOAD] Compiling deterministic scheduler...",
-            "[CRON] Reading agenda matrix for next_day...",
-            "[SCHED] Queueing priority nodes...",
-            "[SUCCESS] Agenda baked into solid instructions.",
-            "[STATUS] Standby until system loop reboot."
+            "[SYS_LOAD] EXECUTING FORECASTING ENGINE...",
+            "[CRON] PARSING NEXT_DAY EVENT COEFFICIENTS...",
+            "[SCHED] CACHING ACTION OBJECTS FOR RUNTIME...",
+            "[SUCCESS] BREADCRUMBS SECURED. RUNTIME BINDINGS READY.",
+            "[STATUS] ENTERING SLEEP PROTOCOL STANDBY."
           ]
         },
         "primer": {
           num: "09",
-          title: "Primer",
-          tagline: "Quick-start briefings that get you up to speed on a topic before a meeting or task.",
+          title: "PRIMER",
+          tagline: "HIGH-DENSITY COMPACT SYNOPSIS UTILITIES DELIVERING ZERO-DELAY COGNITIVE BOOTSTRAPPING.",
           year: "2025",
-          desc: "A high-performance text synthesizer that compiles essential domain briefs instantly. It parses complex corporate records and structures a clear, telemetry-style list of action points before meetings.",
+          desc: "AN EXTREMELY COMPACT DATA COMPACTOR CONTEXTUALIZING TOPICS IN REAL-TIME. GENERATES PARALLEL TEXT BULLET METRICS FOR IMMINENT TASK SEQUENCES TO BRING SYSTEM OPERATORS TO MAXIMUM VELOCITY INSTANTLY.",
           logs: [
-            "[SYS_LOAD] Launching rapid brief synthesizer...",
-            "[PARSER] Consuming target raw record sheets...",
-            "[MODEL] Extraction logic: active",
-            "[COMPREHEND] Compiling high-density metrics...",
-            "[SUCCESS] Briefing output prepared. 3-sec digest ready."
+            "[SYS_LOAD] STARTING RAW VECTOR EXTRACTION...",
+            "[PARSER] CONSUMING RAW METADATA BLOCKS...",
+            "[MODEL] COMPILING SIGNIFICANCE MATRIX...",
+            "[COMPREHEND] SYNTHESIZING EXTREME SPEED TELEMETRY...",
+            "[SUCCESS] KNOWLEDGE BRIEFS COMPILED. READY FOR MEMORY INGEST."
           ]
         },
         "dossier": {
           num: "10",
-          title: "Dossier",
-          tagline: "Builds a living profile/reference sheet on a person, company, or topic as you research it.",
+          title: "DOSSIER",
+          tagline: "LIVE-UPDATED METADATA TARGET PROFILE SHEETS AGGREGATING SYSTEM INVENTORIES ON TARGET ENTITIES.",
           year: "2025",
-          desc: "An interactive knowledge-management workspace that maps research subjects. It crawls public web archives and compiles structured dossiers containing contact details, investment milestones, and corporate structures.",
+          desc: "A LIVE VECTOR PROFILE ARCHIVE MAPPING HIGH-DIMENSIONAL TARGET METADATA. AUTO-CRAWLS RAW INTEL ASSETS TO SECURE CONTINUOUS INTEL RECORDS ON PEOPLES, SYSTEMS, OR CORPORATE STRUCTURAL FORENSICS.",
           logs: [
-            "[SYS_LOAD] Initializing active crawler thread...",
-            "[NETWORK] Pinging data streams...",
-            "[COMPILER] Compiling reference metadata database...",
-            "[SYNC] Syncing local cache to profile sheet...",
-            "[SUCCESS] Profile compiled. Storage: 0.14 MB."
+            "[SYS_LOAD] INITIATING VECTOR SCANNER SPIDERS...",
+            "[NETWORK] SENDING SECURE ENVELOPE SEARCH PACKETS...",
+            "[COMPILER] PACKING TARGET INVENTORY BLOCK...",
+            "[SYNC] PIPING REMOTE ENTITY STRUCTURES INTO CACHE...",
+            "[SUCCESS] REFERENCE SHEET COMPILED. CACHE INGEST: 0.14 MB."
           ]
         }
       };
@@ -1979,6 +2288,9 @@
       };
 
       termInput.addEventListener("keydown", (e) => {
+        // Play mechanical key tick
+        playKeystroke();
+
         if (e.key === "Enter") {
           const val = termInput.value.trim().toLowerCase();
           termInput.value = "";
