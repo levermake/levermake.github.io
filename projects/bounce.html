@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>project.jdm Bounce Animator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #1a1a2e; min-height: 100vh; color: #fff; padding: 20px; }
+    .jdm-header { text-align: center; margin-bottom: 24px; }
+    .jdm-header h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, #ff006e, #fb5607, #ffbe0b, #8338ec, #3a86ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+    .jdm-header p { color: #a0a0c0; margin: 8px 0 0; font-size: 0.95rem; }
+    .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .panel { background: #16213e; border-radius: 16px; padding: 20px; border: 1px solid #2a2a4a; }
+    .panel h3 { margin: 0 0 16px; font-size: 1rem; color: #e0e0ff; display: flex; align-items: center; gap: 8px; }
+    .control-group { margin-bottom: 16px; }
+    .control-group label { display: block; font-size: 0.8rem; color: #8892b0; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .control-group input[type="range"] { width: 100%; accent-color: #ff006e; }
+    .control-group input[type="color"] { width: 100%; height: 36px; border: none; border-radius: 8px; cursor: pointer; }
+    .control-group select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #2a2a4a; background: #0f3460; color: #fff; font-size: 0.9rem; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; margin-bottom: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #ff006e, #8338ec); color: #fff; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,0,110,0.3); }
+    .btn-secondary { background: #0f3460; color: #fff; border: 1px solid #2a2a4a; }
+    .btn-secondary:hover { background: #1a4a7a; }
+    .canvas-wrap { position: relative; background: #0a0a1a; border-radius: 16px; overflow: hidden; border: 2px solid #2a2a4a; }
+    #bounceCanvas { display: block; width: 100%; height: auto; }
+    .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .preset-btn { padding: 8px; border-radius: 8px; border: 1px solid #2a2a4a; background: #0f3460; color: #fff; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+    .preset-btn:hover { border-color: #ff006e; }
+    .preset-btn.active { background: linear-gradient(135deg, #ff006e, #8338ec); border-color: transparent; }
+    .stats { display: flex; gap: 16px; margin-top: 12px; justify-content: center; font-size: 0.8rem; color: #8892b0; }
+    .stat span { color: #fff; font-weight: 600; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .toggle-row label { font-size: 0.85rem; color: #c0c0e0; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #2a2a4a; border-radius: 24px; transition: 0.3s; }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: linear-gradient(135deg, #ff006e, #8338ec); }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+    @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="jdm-header">
+    <h1>⚡ Bounce Animator</h1>
+    <p>Create satisfying project.jdm-style bounce animations instantly</p>
+  </div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <h3>🎛️ Controls</h3>
+
+      <div class="control-group">
+        <label>Ball Count</label>
+        <input type="range" id="ballCount" min="1" max="20" value="10">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:#8892b0;margin-top:4px;"><span>1</span><span id="ballCountVal">10</span><span>20</span></div>
+      </div>
+
+      <div class="control-group">
+        <label>Bounce Height</label>
+        <input type="range" id="bounceHeight" min="50" max="400" value="250">
+      </div>
+
+      <div class="control-group">
+        <label>Gravity</label>
+        <input type="range" id="gravity" min="0.2" max="2.0" step="0.1" value="0.8">
+      </div>
+
+      <div class="control-group">
+        <label>Elasticity (Bounciness)</label>
+        <input type="range" id="elasticity" min="0.3" max="1.2" step="0.05" value="0.85">
+      </div>
+
+      <div class="control-group">
+        <label>Ball Size</label>
+        <input type="range" id="ballSize" min="10" max="60" value="28">
+      </div>
+
+      <div class="control-group">
+        <label>Speed</label>
+        <input type="range" id="speed" min="0.3" max="3.0" step="0.1" value="1.0">
+      </div>
+
+      <div class="toggle-row">
+        <label>Squash & Stretch</label>
+        <label class="toggle-switch"><input type="checkbox" id="squashStretch" checked><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <label>Trail Effect</label>
+        <label class="toggle-switch"><input type="checkbox" id="trailEffect" checked><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <label>Shadows</label>
+        <label class="toggle-switch"><input type="checkbox" id="shadows" checked><span class="toggle-slider"></span></label>
+      </div>
+
+      <div class="control-group">
+        <label>Color Palette</label>
+        <div class="preset-grid">
+          <button class="preset-btn active" data-palette="rainbow">🌈 Rainbow</button>
+          <button class="preset-btn" data-palette="neon">💜 Neon</button>
+          <button class="preset-btn" data-palette="sunset">🌅 Sunset</button>
+          <button class="preset-btn" data-palette="ocean">🌊 Ocean</button>
+          <button class="preset-btn" data-palette="candy">🍬 Candy</button>
+          <button class="preset-btn" data-palette="mono">⚫ Mono</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Background</label>
+        <select id="bgSelect">
+          <option value="#1a1a2e">Midnight</option>
+          <option value="#ff69b4" selected>Pink (JDM Style)</option>
+          <option value="#0a0a0a">Void</option>
+          <option value="#1a0a2e">Purple Haze</option>
+          <option value="#0a1a0a">Forest</option>
+          <option value="#1a1a1a">Dark Gray</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="playBtn">▶ Play Animation</button>
+      <button class="btn btn-secondary" id="pauseBtn">⏸ Pause</button>
+      <button class="btn btn-secondary" id="resetBtn">↺ Reset</button>
+      <button class="btn btn-secondary" id="exportBtn">💾 Save Frame</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="bounceCanvas" width="800" height="500"></canvas>
+      <div class="stats">
+        <div class="stat">FPS: <span id="fpsDisplay">60</span></div>
+        <div class="stat">Bounces: <span id="bounceDisplay">0</span></div>
+        <div class="stat">Time: <span id="timeDisplay">0.0s</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bounceCanvas');
+    const ctx = canvas.getContext('2d');
+    let animationId = null;
+    let isPlaying = true;
+    let totalBounces = 0;
+    let startTime = Date.now();
+    let lastTime = Date.now();
+    let fps = 60;
+
+    const palettes = {
+      rainbow: ['#ff0000','#ff4500','#ff8c00','#ffd700','#adff2f','#00ff7f','#00ced1','#1e90ff','#9370db','#ff1493'],
+      neon: ['#ff006e','#fb5607','#ffbe0b','#8338ec','#3a86ff','#06ffa5','#ff006e','#fb5607','#ffbe0b','#8338ec'],
+      sunset: ['#ff4e50','#fca311','#f48c06','#e85d04','#dc2f02','#9d0208','#ff4e50','#fca311','#f48c06','#e85d04'],
+      ocean: ['#03045e','#0077b6','#0096c7','#00b4d8','#48cae4','#90e0ef','#03045e','#0077b6','#0096c7','#00b4d8'],
+      candy: ['#ff006e','#ff99c8','#fcf6bd','#d0f4de','#a9def9','#e4c1f9','#ff006e','#ff99c8','#fcf6bd','#d0f4de'],
+      mono: ['#ffffff','#e0e0e0','#c0c0c0','#a0a0a0','#808080','#606060','#404040','#202020','#ffffff','#e0e0e0']
+    };
+
+    let currentPalette = 'rainbow';
+    let bgColor = '#ff69b4';
+
+    class Ball {
+      constructor(x, y, radius, color, delay) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = 0;
+        this.delay = delay;
+        this.squashX = 1;
+        this.squashY = 1;
+        this.trail = [];
+        this.bounceCount = 0;
+        this.active = false;
+        this.initialY = y;
+      }
+
+      update(dt, gravity, elasticity, floorY, enableSquash, width) {
+        if (!this.active) {
+          this.delay -= dt;
+          if (this.delay <= 0) this.active = true;
+          return;
+        }
+
+        this.vy += gravity * dt * 60;
+        this.x += this.vx * dt * 60;
+        this.y += this.vy * dt * 60;
+
+        if (this.x - this.radius < 0) { this.x = this.radius; this.vx *= -0.8; }
+        if (this.x + this.radius > width) { this.x = width - this.radius; this.vx *= -0.8; }
+
+        if (this.y + this.radius > floorY) {
+          this.y = floorY - this.radius;
+          if (Math.abs(this.vy) > 2) {
+            this.vy *= -elasticity;
+            this.bounceCount++;
+            totalBounces++;
+            if (enableSquash) {
+              const impact = Math.min(Math.abs(this.vy) / 25, 0.6);
+              this.squashY = 1 - impact;
+              this.squashX = 1 + impact;
+            }
+          } else {
+            this.vy = 0;
+            this.vx *= 0.98;
+          }
+        }
+
+        this.squashX += (1 - this.squashX) * 0.15;
+        this.squashY += (1 - this.squashY) * 0.15;
+
+        if (document.getElementById('trailEffect').checked) {
+          this.trail.push({ x: this.x, y: this.y, r: this.radius, alpha: 0.4 });
+          if (this.trail.length > 12) this.trail.shift();
+          this.trail.forEach((t, i) => { t.alpha = (i / this.trail.length) * 0.3; });
+        } else {
+          this.trail = [];
+        }
+      }
+
+      draw(ctx) {
+        if (!this.active && this.delay > 0) return;
+
+        this.trail.forEach(t => {
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, t.r * 0.8, 0, Math.PI * 2);
+          ctx.fillStyle = this.color + Math.floor(t.alpha * 255).toString(16).padStart(2, '0');
+          ctx.fill();
+        });
+
+        if (document.getElementById('shadows').checked) {
+          const floorY = canvas.height - 40;
+          const dist = floorY - (this.y + this.radius);
+          const shadowAlpha = Math.max(0, 0.3 - dist / 400);
+          const shadowScale = Math.max(0.3, 1 - dist / 300);
+          ctx.beginPath();
+          ctx.ellipse(this.x, floorY + 5, this.radius * shadowScale, this.radius * 0.2 * shadowScale, 0, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0,0,0,${shadowAlpha})`;
+          ctx.fill();
+        }
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.squashX, this.squashY);
+        ctx.beginPath();
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.25, -this.radius * 0.25, this.radius * 0.3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    let balls = [];
+
+    function initBalls() {
+      balls = [];
+      totalBounces = 0;
+      startTime = Date.now();
+      const count = parseInt(document.getElementById('ballCount').value);
+      const size = parseInt(document.getElementById('ballSize').value);
+      const height = parseInt(document.getElementById('bounceHeight').value);
+      const colors = palettes[currentPalette];
+      const floorY = canvas.height - 40;
+
+      for (let i = 0; i < count; i++) {
+        const x = (canvas.width / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 30;
+        const y = floorY - height - Math.random() * 50;
+        const color = colors[i % colors.length];
+        const delay = i * 0.08;
+        const ball = new Ball(x, y, size, color, delay);
+        ball.vy = -Math.sqrt(2 * 0.8 * height) * (0.8 + Math.random() * 0.4);
+        balls.push(ball);
+      }
+    }
+
+    function drawFloor() {
+      const floorY = canvas.height - 40;
+      ctx.beginPath();
+      ctx.moveTo(0, floorY);
+      ctx.lineTo(canvas.width, floorY);
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      const grad = ctx.createLinearGradient(0, floorY, 0, canvas.height);
+      grad.addColorStop(0, 'rgba(255,255,255,0.08)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, floorY, canvas.width, canvas.height - floorY);
+    }
+
+    function animate() {
+      if (!isPlaying) return;
+
+      const now = Date.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.05) * parseFloat(document.getElementById('speed').value);
+      lastTime = now;
+
+      fps = Math.round(1000 / (now - lastTime + 1));
+      document.getElementById('fpsDisplay').textContent = fps;
+      document.getElementById('bounceDisplay').textContent = totalBounces;
+      document.getElementById('timeDisplay').textContent = ((now - startTime) / 1000).toFixed(1) + 's';
+
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < canvas.width; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+      for (let y = 0; y < canvas.height; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+      drawFloor();
+
+      const gravity = parseFloat(document.getElementById('gravity').value);
+      const elasticity = parseFloat(document.getElementById('elasticity').value);
+      const floorY = canvas.height - 40;
+      const enableSquash = document.getElementById('squashStretch').checked;
+
+      balls.forEach(ball => {
+        ball.update(dt, gravity, elasticity, floorY, enableSquash, canvas.width);
+        ball.draw(ctx);
+      });
+
+      const allSettled = balls.every(b => b.active && Math.abs(b.vy) < 0.5 && b.y > floorY - b.radius - 5);
+      if (allSettled && balls.length > 0 && balls[0].active) {
+        setTimeout(() => { if (isPlaying) initBalls(); }, 800);
+      }
+
+      animationId = requestAnimationFrame(animate);
+    }
+
+    document.getElementById('ballCount').addEventListener('input', e => {
+      document.getElementById('ballCountVal').textContent = e.target.value;
+      initBalls();
+    });
+    document.getElementById('bounceHeight').addEventListener('input', initBalls);
+    document.getElementById('ballSize').addEventListener('input', initBalls);
+    document.getElementById('bgSelect').addEventListener('change', e => { bgColor = e.target.value; });
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPalette = btn.dataset.palette;
+        initBalls();
+      });
+    });
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (!isPlaying) { isPlaying = true; lastTime = Date.now(); animate(); }
+    });
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      isPlaying = false;
+      if (animationId) cancelAnimationFrame(animationId);
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => { initBalls(); });
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'bounce-animation.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+
+    function resize() {
+      const wrap = document.querySelector('.canvas-wrap');
+      const w = wrap.clientWidth;
+      canvas.width = w;
+      canvas.height = Math.min(500, w * 0.6);
+      initBalls();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    initBalls();
+    animate();
+  </script>
+</body>
+</html>
