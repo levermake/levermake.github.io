@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meaningful Love</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --depth-1: -200px;
+            --depth-2: -100px;
+            --depth-3: 0px;
+            --depth-4: 100px;
+            --depth-5: 200px;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            font-family: 'Cormorant Garamond', serif;
+            overflow-x: hidden;
+            perspective: 1000px;
+            perspective-origin: 50% 50%;
+        }
+
+        /* Scroll container */
+        .scroll-container {
+            height: 800vh;
+            position: relative;
+        }
+
+        /* Fixed video background */
+        .video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .video-container video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+            opacity: 0.85;
+            filter: contrast(1.1) saturate(0.9);
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* 3D Scene */
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            transform-style: preserve-3d;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* Floating elements */
+        .float-layer {
+            position: absolute;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* Title styling */
+        .title-main {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateZ(var(--depth-5));
+            text-align: center;
+            opacity: 0;
+            animation: fadeInTitle 2s ease-out 0.5s forwards;
+        }
+
+        .title-main h1 {
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            line-height: 1.1;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 60px rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.8);
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .title-main .subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 300;
+            letter-spacing: 0.4em;
+            margin-top: 1rem;
+            color: rgba(255,255,255,0.7);
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* Section texts floating in 3D */
+        .verse {
+            position: absolute;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 300;
+            font-style: italic;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+            letter-spacing: 0.05em;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .verse.visible {
+            opacity: 1;
+        }
+
+        /* Decorative frames */
+        .art-frame {
+            position: absolute;
+            width: 200px;
+            height: 280px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+            transform-style: preserve-3d;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .art-frame::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .art-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+            filter: grayscale(0.3) sepia(0.2);
+        }
+
+        /* Piano keys decoration */
+        .piano-key {
+            position: absolute;
+            background: linear-gradient(180deg, #fff 0%, #ddd 100%);
+            border-radius: 2px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .piano-key.black {
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+        }
+
+        /* Musical notes */
+        .note {
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255,255,255,0.4);
+            font-family: serif;
+            user-select: none;
+        }
+
+        /* Progress bar */
+        .scroll-progress {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            z-index: 100;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .scroll-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #fff, rgba(255,255,255,0.5));
+            transition: width 0.1s linear;
+        }
+
+        /* Audio control */
+        .audio-control {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 100;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .audio-control:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.1);
+        }
+
+        /* Start overlay */
+        .start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-overlay h2 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        .start-overlay .start-hint {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeInTitle {
+            from { opacity: 0; transform: translate(-50%, -40%) translateZ(var(--depth-5)); }
+            to { opacity: 1; transform: translate(-50%, -50%) translateZ(var(--depth-5)); }
+        }
+
+        /* Particle canvas */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Vignette */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 8;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.7);
+        }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        .scroll-hint.hidden {
+            opacity: 0;
+        }
+
+        .scroll-hint span {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.8), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { transform: scaleY(1); opacity: 0.5; }
+            50% { transform: scaleY(0.5); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .art-frame {
+                width: 120px;
+                height: 170px;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <!-- Start Overlay -->
+    <div class="start-overlay" id="startOverlay">
+        <h2>Meaningful Love</h2>
+        <div class="start-hint">Click to Begin</div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bgMusic" loop>
+        <!-- Replace with your audio file path -->
+        <source src="meaningful-love-slowed.mp3" type="audio/mpeg">
+        <!-- Fallback: Add your audio file in the same folder as this HTML -->
+    </audio>
+
+    <!-- Audio Control -->
+    <div class="audio-control" id="audioControl" title="Toggle Music">
+        <span id="audioIcon">&#9836;</span>
+    </div>
+
+    <!-- Video Background -->
+    <div class="video-container">
+        <video id="mainVideo" muted playsinline preload="auto">
+            <source src="VID-20260810-WA0006.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <!-- Vignette -->
+    <div class="vignette"></div>
+
+    <!-- Particles Canvas -->
+    <canvas class="particles" id="particles"></canvas>
+
+    <!-- 3D Scene -->
+    <div class="scene" id="scene">
+        <!-- Main Title -->
+        <div class="title-main" id="mainTitle">
+            <h1>Meaningful<br>Love</h1>
+            <div class="subtitle">A Journey Through Art & Time</div>
+        </div>
+
+        <!-- Floating Verses -->
+        <div class="verse" id="verse1" style="top: 120%; left: 15%; transform: translateZ(-150px);">
+            "In every brushstroke,<br>lies a whispered promise"
+        </div>
+
+        <div class="verse" id="verse2" style="top: 220%; right: 10%; transform: translateZ(100px); text-align: right;">
+            "Sculpted in marble,<br>etched in the soul"
+        </div>
+
+        <div class="verse" id="verse3" style="top: 350%; left: 50%; transform: translateX(-50%) translateZ(-100px);">
+            "Petals fall like notes<br>in a silent symphony"
+        </div>
+
+        <div class="verse" id="verse4" style="top: 480%; left: 20%; transform: translateZ(150px);">
+            "Through ink and melody,<br>we find our meaning"
+        </div>
+
+        <div class="verse" id="verse5" style="top: 620%; right: 15%; transform: translateZ(-50px); text-align: right;">
+            "Love transcends<br>the canvas of time"
+        </div>
+
+        <!-- Decorative Art Frames -->
+        <div class="art-frame" id="frame1" style="top: 150%; left: 5%; transform: rotateY(15deg) translateZ(-200px);">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg, #1a1a2e, #16213e);"></div>
+        </div>
+
+        <div class="art-frame" id="frame2" style="top: 280%; right: 5%; transform: rotateY(-15deg) translateZ(100px);">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg, #2d132c, #801336);"></div>
+        </div>
+
+        <div class="art-frame" id="frame3" style="top: 420%; left: 8%; transform: rotateY(10deg) translateZ(-100px);">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg, #0f3460, #16213e);"></div>
+        </div>
+
+        <div class="art-frame" id="frame4" style="top: 550%; right: 8%; transform: rotateY(-10deg) translateZ(50px);">
+            <div style="width:100%;height:100%;background:linear-gradient(135deg, #1a1a2e, #0f3460);"></div>
+        </div>
+
+        <!-- Musical Notes -->
+        <div class="note" style="top: 180%; left: 80%;">&#9833;</div>
+        <div class="note" style="top: 300%; left: 20%;">&#9834;</div>
+        <div class="note" style="top: 450%; left: 70%;">&#9835;</div>
+        <div class="note" style="top: 580%; left: 30%;">&#9836;</div>
+        <div class="note" style="top: 700%; left: 60%;">&#9833;</div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress">
+        <div class="scroll-progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Scroll Hint -->
+    <div class="scroll-hint" id="scrollHint">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+    </div>
+
+    <!-- Scroll Container -->
+    <div class="scroll-container"></div>
+
+    <script>
+        // Elements
+        const video = document.getElementById('mainVideo');
+        const audio = document.getElementById('bgMusic');
+        const scene = document.getElementById('scene');
+        const progressBar = document.getElementById('progressBar');
+        const scrollHint = document.getElementById('scrollHint');
+        const startOverlay = document.getElementById('startOverlay');
+        const audioControl = document.getElementById('audioControl');
+        const audioIcon = document.getElementById('audioIcon');
+        const mainTitle = document.getElementById('mainTitle');
+
+        // State
+        let isAudioPlaying = false;
+        let videoDuration = 17; // Approximate duration
+        let hasStarted = false;
+
+        // Set video duration when loaded
+        video.addEventListener('loadedmetadata', () => {
+            videoDuration = video.duration;
+        });
+
+        // Start experience
+        startOverlay.addEventListener('click', () => {
+            hasStarted = true;
+            startOverlay.classList.add('hidden');
+            video.play().then(() => {
+                video.pause();
+                video.currentTime = 0;
+            }).catch(() => {});
+
+            // Try to play audio
+            audio.volume = 0.4;
+            audio.play().then(() => {
+                isAudioPlaying = true;
+                audioIcon.innerHTML = '&#9836;';
+            }).catch(() => {
+                // Audio autoplay blocked - user can click button
+                audioIcon.innerHTML = '&#9837;';
+            });
+
+            setTimeout(() => {
+                scrollHint.classList.add('hidden');
+            }, 4000);
+        });
+
+        // Audio toggle
+        audioControl.addEventListener('click', () => {
+            if (isAudioPlaying) {
+                audio.pause();
+                audioIcon.innerHTML = '&#9837;';
+                isAudioPlaying = false;
+            } else {
+                audio.play().then(() => {
+                    audioIcon.innerHTML = '&#9836;';
+                    isAudioPlaying = true;
+                }).catch(() => {
+                    alert('Please add your audio file: meaningful-love-slowed.mp3');
+                });
+            }
+        });
+
+        // Scroll handling
+        let ticking = false;
+
+        function updateScroll() {
+            const scrollTop = window.scrollY;
+            const docHeight = document.body.scrollHeight - window.innerHeight;
+            const scrollProgress = Math.max(0, Math.min(1, scrollTop / docHeight));
+
+            // Update video time based on scroll
+            if (videoDuration && hasStarted) {
+                const targetTime = scrollProgress * videoDuration;
+                if (Math.abs(video.currentTime - targetTime) > 0.1) {
+                    video.currentTime = targetTime;
+                }
+            }
+
+            // Update progress bar
+            progressBar.style.width = (scrollProgress * 100) + '%';
+
+            // 3D Scene rotation based on scroll
+            const rotateX = scrollProgress * 10 - 5;
+            const rotateY = scrollProgress * 15 - 7.5;
+            scene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+            // Parallax layers
+            const layers = document.querySelectorAll('.verse, .art-frame, .note');
+            layers.forEach((layer, index) => {
+                const speed = (index % 3 + 1) * 0.3;
+                const yPos = -(scrollTop * speed * 0.2);
+                const currentTransform = layer.style.transform;
+                const zMatch = currentTransform.match(/translateZ\([^)]+\)/);
+                const zValue = zMatch ? zMatch[0] : 'translateZ(0px)';
+
+                // Check visibility
+                const rect = layer.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight * 1.2 && rect.bottom > -window.innerHeight * 0.2;
+
+                if (layer.classList.contains('verse')) {
+                    layer.classList.toggle('visible', isVisible);
+                }
+
+                // Apply parallax
+                if (layer.classList.contains('art-frame')) {
+                    const rotY = currentTransform.match(/rotateY\([^)]+\)/);
+                    const rotYValue = rotY ? rotY[0] : 'rotateY(0deg)';
+                    layer.style.transform = `${rotYValue} ${zValue} translateY(${yPos * 0.5}px)`;
+                }
+            });
+
+            // Title fade out on scroll
+            const titleOpacity = Math.max(0, 1 - scrollProgress * 3);
+            mainTitle.style.opacity = titleOpacity;
+
+            // Hide scroll hint after scrolling
+            if (scrollProgress > 0.05) {
+                scrollHint.classList.add('hidden');
+            }
+
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateScroll);
+                ticking = true;
+            }
+        });
+
+        // Smooth scroll with mouse wheel
+        let scrollTarget = 0;
+        let currentScroll = 0;
+        const smoothFactor = 0.08;
+
+        window.addEventListener('wheel', (e) => {
+            scrollTarget += e.deltaY;
+            scrollTarget = Math.max(0, Math.min(scrollTarget, document.body.scrollHeight - window.innerHeight));
+        }, { passive: true });
+
+        // Particle system
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.life = Math.random() * 100 + 100;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+
+                if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // Create particles
+        for (let i = 0; i < 60; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Initial update
+        updateScroll();
+
+        // Keyboard support
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'ArrowDown') {
+                window.scrollBy({ top: window.innerHeight * 0.5, behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp') {
+                window.scrollBy({ top: -window.innerHeight * 0.5, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+      </html>
