@@ -15,13 +15,10 @@
   <!-- Quill Rich Text Editor -->
   <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
   
-  <!-- Toastr for beautiful notifications -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-  
-  <!-- Animate.css for animations -->
+  <!-- Animate.css -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   
-  <!-- Font Awesome for more icons -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <style>
@@ -32,6 +29,9 @@
       --accent-lilac: #b8a9c9;
       --accent-sage: #a3b899;
       --accent-warm: #e6cba8;
+      --accent-blue: #74b9ff;
+      --accent-pink: #fd79a8;
+      --accent-purple: #a29bfe;
       --shadow-soft: 0 12px 30px rgba(0,0,0,0.08);
       --border-soft: 1px solid rgba(180, 160, 140, 0.2);
     }
@@ -64,225 +64,919 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .toolbar-section {
-      background: rgba(255,255,255,0.6);
-      border-radius: 1rem;
+    /* Brand Header */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
       padding: 1rem;
-      margin-bottom: 1rem;
-      border: var(--border-soft);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      color: white;
     }
     
-    .stats-badge {
-      background: white;
-      border-radius: 20px;
-      padding: 0.4rem 1rem;
+    .brand-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      letter-spacing: -1px;
+    }
+    
+    .brand-tagline {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-style: italic;
+    }
+    
+    .brand-author {
       font-size: 0.85rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      opacity: 0.7;
+      margin-top: 0.5rem;
     }
     
-    /* Quill Custom Styles */
+    /* Simple Controls Toolbar */
+    .simple-controls {
+      background: #f8f6f3;
+      border: 1px solid #e0d8d0;
+      border-radius: 12px;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .control-btn {
+      background: transparent;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1.1rem;
+      color: #555;
+      position: relative;
+    }
+    
+    .control-btn:hover {
+      background: #e8e2d9;
+      color: #333;
+    }
+    
+    .control-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    
+    .control-btn .tooltip-text {
+      visibility: hidden;
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 4px 8px;
+      border-radius: 4px;
+      position: absolute;
+      z-index: 10;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .control-btn:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .divider {
+      width: 1px;
+      height: 24px;
+      background: #d0c8bc;
+      margin: 0 0.25rem;
+    }
+    
+    /* Export Modal Styles */
+    .export-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .export-modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .export-modal-content {
+      background: white;
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 700px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: slideUp 0.4s ease;
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .export-option {
+      background: #f8f6f3;
+      border: 2px solid #e0d8d0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .export-option:hover {
+      border-color: var(--accent-purple);
+      background: #f5f0ff;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    
+    .export-option.selected {
+      border-color: var(--accent-purple);
+      background: #e8e0ff;
+      box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.3);
+    }
+    
+    .export-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .export-format-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .export-format-desc {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    .btn-export-confirm {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-export-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-export-confirm:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .export-progress {
+      display: none;
+      margin-top: 1rem;
+    }
+    
+    .export-progress.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 4px;
+      animation: progress 2s ease;
+    }
+    
+    @keyframes progress {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+    
+    /* Stats Bar */
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-item {
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      font-size: 0.85rem;
+    }
+    
+    .stat-value {
+      font-weight: 700;
+      color: #667eea;
+    }
+    
+    /* Quill Editor */
     #editor-container {
       background: white;
-      border-radius: 1rem;
+      border-radius: 12px;
       min-height: 400px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
     
     .ql-toolbar.ql-snow {
       border: none;
-      background: #f8f4ed;
-      border-radius: 1rem 1rem 0 0;
-      padding: 0.8rem;
+      background: #f8f6f3;
+      border-radius: 12px 12px 0 0;
+      padding: 0.5rem;
     }
     
     .ql-container.ql-snow {
       border: none;
       font-family: 'Literata', serif;
       font-size: 1.1rem;
-      border-radius: 0 0 1rem 1rem;
+      border-radius: 0 0 12px 12px;
     }
     
     .ql-editor {
       min-height: 400px;
       line-height: 1.8;
     }
-    
-    /* Custom buttons */
-    .btn-gradient {
-      background: linear-gradient(135deg, #cdbc9f, #b8a48e);
-      border: none;
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 25px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    
-    .btn-gradient:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(184, 164, 142, 0.4);
-    }
-    
-    .word-count-animation {
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
   </style>
 </head>
 <body>
-  <div class="app-container animate__animated animate__fadeInUp">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-      <div class="d-flex align-items-center">
-        <i class="fas fa-feather-alt text-muted me-2" style="font-size: 2rem;"></i>
-        <h1 class="mb-0" style="font-weight: 600; color: #5e4b3c;">Writor</h1>
-      </div>
-      <div class="d-flex gap-2 flex-wrap">
-        <button class="btn btn-outline-secondary" id="newDocBtn">
-          <i class="fas fa-file me-1"></i> New
-        </button>
-        <button class="btn btn-outline-secondary" id="openFileBtn">
-          <i class="fas fa-folder-open me-1"></i> Open
-        </button>
-        <div class="dropdown">
-          <button class="btn btn-gradient dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="fas fa-download me-1"></i> Export
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#" data-export="txt"><i class="fas fa-file-text me-2"></i>Text (.txt)</a></li>
-            <li><a class="dropdown-item" href="#" data-export="md"><i class="fas fa-markdown me-2"></i>Markdown (.md)</a></li>
-            <li><a class="dropdown-item" href="#" data-export="html"><i class="fas fa-code me-2"></i>HTML (.html)</a></li>
-            <li><a class="dropdown-item" href="#" data-export="rtf"><i class="fas fa-file-alt me-2"></i>Rich Text (.rtf)</a></li>
-            <li><a class="dropdown-item" href="#" data-export="pdf"><i class="fas fa-file-pdf me-2"></i>PDF (.pdf)</a></li>
-            <li><a class="dropdown-item" href="#" data-export="docx"><i class="fas fa-file-word me-2"></i>Word (.docx)</a></li>
-          </ul>
-        </div>
-        <input type="file" id="fileInput" accept=".txt,.md,.markdown,.html,.htm,.rtf,.pdf,.doc,.docx" style="display:none">
-      </div>
+  <div class="app-container">
+    <!-- Brand Header -->
+    <div class="brand-header animate__animated animate__fadeInDown">
+      <h1 class="brand-title">Writor</h1>
+      <div class="brand-tagline">What will you write..?</div>
+      <div class="brand-author">by Levermake</div>
+    </div>
+    
+    <!-- Simple Controls Toolbar -->
+    <div class="simple-controls animate__animated animate__fadeIn">
+      <button class="control-btn" onclick="undoAction()" id="undoBtn" disabled>
+        <i class="fas fa-undo"></i>
+        <span class="tooltip-text">Undo (Ctrl+Z)</span>
+      </button>
+      <button class="control-btn" onclick="redoAction()" id="redoBtn" disabled>
+        <i class="fas fa-redo"></i>
+        <span class="tooltip-text">Redo (Ctrl+Y)</span>
+      </button>
+      <div class="divider"></div>
+      <button class="control-btn" onclick="cutAction()">
+        <i class="fas fa-cut"></i>
+        <span class="tooltip-text">Cut (Ctrl+X)</span>
+      </button>
+      <button class="control-btn" onclick="copyAction()">
+        <i class="fas fa-copy"></i>
+        <span class="tooltip-text">Copy (Ctrl+C)</span>
+      </button>
+      <button class="control-btn" onclick="pasteAction()">
+        <i class="fas fa-paste"></i>
+        <span class="tooltip-text">Paste (Ctrl+V)</span>
+      </button>
+      <div class="divider"></div>
+      <button class="control-btn" onclick="selectAllAction()">
+        <i class="fas fa-check-double"></i>
+        <span class="tooltip-text">Select All (Ctrl+A)</span>
+      </button>
+      <button class="control-btn" onclick="deleteAction()">
+        <i class="fas fa-trash"></i>
+        <span class="tooltip-text">Delete Selection</span>
+      </button>
+      <div class="divider"></div>
+      <button class="control-btn" onclick="clearFormatting()">
+        <i class="fas fa-remove-format"></i>
+        <span class="tooltip-text">Clear Formatting</span>
+      </button>
     </div>
     
     <!-- Stats Bar -->
-    <div class="d-flex gap-2 mb-3 flex-wrap">
-      <span class="stats-badge"><i class="fas fa-file-lines me-1"></i>Words: <span id="wordCount">0</span></span>
-      <span class="stats-badge"><i class="fas fa-paragraph me-1"></i>Characters: <span id="charCount">0</span></span>
-      <span class="stats-badge"><i class="fas fa-clock me-1"></i>Reading time: <span id="readingTime">0</span> min</span>
-      <span class="stats-badge"><i class="fas fa-save me-1"></i>Auto-saved <span id="lastSaved">just now</span></span>
-    </div>
-    
-    <!-- Rich Text Editor Toolbar -->
-    <div class="toolbar-section">
-      <div id="toolbar">
-        <select class="ql-header">
-          <option value="1">Heading 1</option>
-          <option value="2">Heading 2</option>
-          <option value="3">Heading 3</option>
-          <option selected>Normal</option>
-        </select>
-        <select class="ql-font">
-          <option selected>Literata</option>
-          <option value="serif">Serif</option>
-          <option value="monospace">Monospace</option>
-        </select>
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-        <button class="ql-strike"></button>
-        <select class="ql-color"></select>
-        <select class="ql-background"></select>
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
-        <button class="ql-blockquote"></button>
-        <button class="ql-code-block"></button>
-        <button class="ql-link"></button>
-        <button class="ql-image"></button>
-        <button class="ql-clean"></button>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <i class="fas fa-file-lines me-1"></i> Words: <span class="stat-value" id="wordCount">0</span>
       </div>
-      <div id="editor-container"></div>
+      <div class="stat-item">
+        <i class="fas fa-paragraph me-1"></i> Characters: <span class="stat-value" id="charCount">0</span>
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-clock me-1"></i> Reading time: <span class="stat-value" id="readingTime">0</span> min
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-save me-1"></i> Auto-saved <span class="stat-value" id="lastSaved">just now</span>
+      </div>
     </div>
     
-    <!-- Quick Actions -->
+    <!-- Quill Editor with Formatting Toolbar -->
+    <div id="formatting-toolbar">
+      <select class="ql-header">
+        <option value="1">Heading 1</option>
+        <option value="2">Heading 2</option>
+        <option value="3">Heading 3</option>
+        <option selected>Normal</option>
+      </select>
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+      <button class="ql-underline"></button>
+      <button class="ql-strike"></button>
+      <select class="ql-color"></select>
+      <select class="ql-background"></select>
+      <button class="ql-list" value="ordered"></button>
+      <button class="ql-list" value="bullet"></button>
+      <button class="ql-blockquote"></button>
+      <button class="ql-code-block"></button>
+      <button class="ql-link"></button>
+      <button class="ql-image"></button>
+      <button class="ql-clean"></button>
+    </div>
+    <div id="editor-container"></div>
+    
+    <!-- Bottom Actions -->
     <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
-      <div class="text-muted">
-        <i class="fas fa-cloud-upload-alt me-1"></i> Drag & drop files here or use the buttons
-      </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-secondary" id="fullscreenBtn">
-          <i class="fas fa-expand me-1"></i> Fullscreen
+        <button class="btn btn-outline-secondary btn-sm" id="newDocBtn">
+          <i class="fas fa-file me-1"></i> New
         </button>
-        <button class="btn btn-sm btn-outline-secondary" id="statsToggleBtn">
-          <i class="fas fa-chart-bar me-1"></i> Toggle Stats
+        <button class="btn btn-outline-secondary btn-sm" id="openFileBtn">
+          <i class="fas fa-folder-open me-1"></i> Open
+        </button>
+      </div>
+      <button class="btn btn-primary" id="exportBtn">
+        <i class="fas fa-download me-1"></i> Export
+      </button>
+      <input type="file" id="fileInput" accept=".txt,.md,.markdown,.html,.htm,.rtf" style="display:none">
+    </div>
+    
+    <div class="text-center text-muted mt-3">
+      <small><i class="fas fa-keyboard me-1"></i> Shortcuts: Ctrl+Z (Undo) · Ctrl+Y (Redo) · Ctrl+C (Copy) · Ctrl+V (Paste) · Ctrl+A (Select All) · Ctrl+E (Export)</small>
+    </div>
+  </div>
+  
+  <!-- Export Modal -->
+  <div class="export-modal" id="exportModal">
+    <div class="export-modal-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">
+          <i class="fas fa-file-export me-2"></i>Export Document
+        </h3>
+        <button class="btn btn-close" onclick="closeExportModal()"></button>
+      </div>
+      
+      <p class="text-muted mb-4">Choose your preferred format:</p>
+      
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="export-option" data-format="txt" onclick="selectExportFormat('txt')">
+            <div class="export-icon">📄</div>
+            <div class="export-format-name">Plain Text (.txt)</div>
+            <div class="export-format-desc">Simple, universal format without formatting</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="export-option" data-format="md" onclick="selectExportFormat('md')">
+            <div class="export-icon">📝</div>
+            <div class="export-format-name">Markdown (.md)</div>
+            <div class="export-format-desc">Great for documentation and GitHub</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="export-option" data-format="html" onclick="selectExportFormat('html')">
+            <div class="export-icon">🌐</div>
+            <div class="export-format-name">HTML (.html)</div>
+            <div class="export-format-desc">Web-ready format with full styling</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="export-option" data-format="rtf" onclick="selectExportFormat('rtf')">
+            <div class="export-icon">📋</div>
+            <div class="export-format-name">Rich Text Format (.rtf)</div>
+            <div class="export-format-desc">Compatible with most word processors</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="export-option" data-format="pdf" onclick="selectExportFormat('pdf')">
+            <div class="export-icon">📕</div>
+            <div class="export-format-name">PDF Document (.pdf)</div>
+            <div class="export-format-desc">Professional, print-ready format</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="export-option" data-format="docx" onclick="selectExportFormat('docx')">
+            <div class="export-icon">📘</div>
+            <div class="export-format-name">Word Document (.docx)</div>
+            <div class="export-format-desc">Microsoft Word compatible format</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <label class="form-label">Filename:</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="filenameInput" value="my-writing">
+          <span class="input-group-text" id="fileExtension">.txt</span>
+        </div>
+      </div>
+      
+      <div class="export-progress" id="exportProgress">
+        <p class="text-muted mb-2">Exporting...</p>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+      
+      <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-outline-secondary flex-grow-1" onclick="closeExportModal()">
+          Cancel
+        </button>
+        <button class="btn-export-confirm flex-grow-1" id="confirmExportBtn" onclick="confirmExport()" disabled>
+          <i class="fas fa-download me-2"></i>Export
         </button>
       </div>
     </div>
   </div>
-
+  
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/turndown@7.1.2/dist/turndown.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.0/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.0.0/docx.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.1.2/dist/turndown.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
   <script>
     // Initialize Quill
     const quill = new Quill('#editor-container', {
       theme: 'snow',
       modules: {
-        toolbar: '#toolbar'
+        toolbar: '#formatting-toolbar'
       },
-      placeholder: 'Write freely... poems, stories, excerpts, dreams...'
+      placeholder: 'What will you write..?'
     });
     
-    // Toastr configuration
-    toastr.options = {
-      "closeButton": true,
-      "progressBar": true,
-      "positionClass": "toast-bottom-right",
-      "timeOut": "3000"
-    };
+    // State
+    let selectedFormat = null;
+    let isExporting = false;
+    let undoStack = [];
+    let redoStack = [];
     
-    // Update stats on change
+    // Update stats and undo/redo buttons
     quill.on('text-change', function() {
       const text = quill.getText();
       const words = text.trim() ? text.trim().split(/\s+/).length : 0;
       const chars = text.length;
-      const readingMinutes = Math.ceil(words / 200); // Average reading speed
+      const readingMinutes = Math.ceil(words / 200);
       
       document.getElementById('wordCount').textContent = words;
       document.getElementById('charCount').textContent = chars;
       document.getElementById('readingTime').textContent = readingMinutes;
       document.getElementById('lastSaved').textContent = 'just now';
       
-      // Auto-save to localStorage
-      localStorage.setItem('tranquil-scribe-content', JSON.stringify(quill.getContents()));
+      // Auto-save
+      localStorage.setItem('writor-content', JSON.stringify(quill.getContents()));
+      
+      // Update undo/redo buttons
+      document.getElementById('undoBtn').disabled = !canUndo();
+      document.getElementById('redoBtn').disabled = !canRedo();
     });
     
     // Load saved content
-    const savedContent = localStorage.getItem('tranquil-scribe-content');
+    const savedContent = localStorage.getItem('writor-content');
     if (savedContent) {
       quill.setContents(JSON.parse(savedContent));
     }
     
-    // New document
+    // Simple Controls Functions
+    function undoAction() {
+      if (canUndo()) {
+        quill.history.undo();
+      }
+    }
+    
+    function redoAction() {
+      if (canRedo()) {
+        quill.history.redo();
+      }
+    }
+    
+    function canUndo() {
+      return quill.history.stack.undo.length > 0;
+    }
+    
+    function canRedo() {
+      return quill.history.stack.redo.length > 0;
+    }
+    
+    function copyAction() {
+      const selection = quill.getSelection();
+      if (selection && selection.length > 0) {
+        const text = quill.getText(selection.index, selection.length);
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Copied to clipboard!', 'success');
+        }).catch(() => {
+          // Fallback
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast('Copied to clipboard!', 'success');
+        });
+      }
+    }
+    
+    function cutAction() {
+      const selection = quill.getSelection();
+      if (selection && selection.length > 0) {
+        const text = quill.getText(selection.index, selection.length);
+        navigator.clipboard.writeText(text).then(() => {
+          quill.deleteText(selection.index, selection.length);
+          showToast('Cut to clipboard!', 'success');
+        }).catch(() => {
+          // Fallback
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('cut');
+          document.body.removeChild(textarea);
+        });
+      }
+    }
+    
+    function pasteAction() {
+      navigator.clipboard.readText().then(text => {
+        const selection = quill.getSelection();
+        if (selection) {
+          quill.insertText(selection.index, text);
+        } else {
+          quill.insertText(quill.getLength(), text);
+        }
+        showToast('Pasted from clipboard!', 'success');
+      }).catch(() => {
+        showToast('Unable to access clipboard', 'error');
+      });
+    }
+    
+    function selectAllAction() {
+      quill.setSelection(0, quill.getLength());
+    }
+    
+    function deleteAction() {
+      const selection = quill.getSelection();
+      if (selection && selection.length > 0) {
+        quill.deleteText(selection.index, selection.length);
+      }
+    }
+    
+    function clearFormatting() {
+      const selection = quill.getSelection();
+      if (selection) {
+        const range = selection.length > 0 ? selection : 
+          { index: 0, length: quill.getLength() };
+        quill.removeFormat(range.index, range.length);
+        showToast('Formatting cleared!', 'success');
+      }
+    }
+    
+    // Export Modal Functions
+    function openExportModal() {
+      document.getElementById('exportModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeExportModal() {
+      document.getElementById('exportModal').classList.remove('show');
+      document.body.style.overflow = 'auto';
+      selectedFormat = null;
+      isExporting = false;
+      document.getElementById('confirmExportBtn').disabled = true;
+      document.getElementById('exportProgress').classList.remove('show');
+      document.querySelectorAll('.export-option').forEach(opt => opt.classList.remove('selected'));
+    }
+    
+    function selectExportFormat(format) {
+      selectedFormat = format;
+      
+      document.querySelectorAll('.export-option').forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.dataset.format === format) {
+          opt.classList.add('selected');
+        }
+      });
+      
+      const extensions = {
+        'txt': '.txt',
+        'md': '.md',
+        'html': '.html',
+        'rtf': '.rtf',
+        'pdf': '.pdf',
+        'docx': '.docx'
+      };
+      
+      document.getElementById('fileExtension').textContent = extensions[format];
+      document.getElementById('confirmExportBtn').disabled = false;
+    }
+    
+    // Export Functions
+    function getEditorContent() {
+      return quill.root.innerHTML;
+    }
+    
+    function getPlainText() {
+      return quill.getText();
+    }
+    
+    function exportAsTxt(filename) {
+      const text = getPlainText();
+      const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+      saveAs(blob, filename);
+    }
+    
+    function exportAsMarkdown(filename) {
+      const html = getEditorContent();
+      const turndownService = new TurndownService({
+        headingStyle: 'atx',
+        codeBlockStyle: 'fenced'
+      });
+      const markdown = turndownService.turndown(html);
+      const blob = new Blob([markdown], {type: 'text/markdown;charset=utf-8'});
+      saveAs(blob, filename);
+    }
+    
+    function exportAsHtml(filename) {
+      const html = getEditorContent();
+      const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${filename.replace(/\.[^/.]+$/, '')}</title>
+  <style>
+    body {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 20px;
+      font-family: Georgia, serif;
+      line-height: 1.8;
+      color: #333;
+    }
+    h1, h2, h3 { color: #2c3e50; }
+    blockquote {
+      border-left: 4px solid #ddd;
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      color: #666;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+      const blob = new Blob([fullHTML], {type: 'text/html;charset=utf-8'});
+      saveAs(blob, filename);
+    }
+    
+    function exportAsRtf(filename) {
+      const html = getEditorContent();
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      const text = tempDiv.textContent || tempDiv.innerText;
+      
+      const escaped = text
+        .replace(/\\/g, '\\\\')
+        .replace(/\{/g, '\\{')
+        .replace(/\}/g, '\\}')
+        .replace(/\n/g, '\\par\n');
+      
+      const rtfContent = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\n\\f0\\fs24 ${escaped}\n}`;
+      const blob = new Blob([rtfContent], {type: 'application/rtf'});
+      saveAs(blob, filename);
+    }
+    
+    async function exportAsPdf(filename) {
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
+      const pdfDoc = await PDFDocument.create();
+      
+      const text = getPlainText();
+      const lines = text.split('\n');
+      
+      let page = pdfDoc.addPage();
+      const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      const fontSize = 12;
+      const lineHeight = fontSize * 1.5;
+      const margin = 50;
+      const maxWidth = page.getWidth() - margin * 2;
+      let yPosition = page.getHeight() - margin;
+      
+      for (const line of lines) {
+        if (yPosition < margin) {
+          page = pdfDoc.addPage();
+          yPosition = page.getHeight() - margin;
+        }
+        
+        page.drawText(line, {
+          x: margin,
+          y: yPosition,
+          size: fontSize,
+          font: font,
+          color: rgb(0, 0, 0),
+          maxWidth: maxWidth,
+        });
+        
+        yPosition -= lineHeight;
+      }
+      
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], {type: 'application/pdf'});
+      saveAs(blob, filename);
+    }
+    
+    async function exportAsDocx(filename) {
+      const text = getPlainText();
+      const paragraphs = text.split('\n').filter(p => p.trim());
+      
+      const doc = new docx.Document({
+        sections: [{
+          properties: {},
+          children: paragraphs.map(p => 
+            new docx.Paragraph({
+              children: [
+                new docx.TextRun({
+                  text: p,
+                  size: 24,
+                }),
+              ],
+              spacing: {
+                after: 200,
+              },
+            })
+          ),
+        }],
+      });
+      
+      const blob = await docx.Packer.toBlob(doc);
+      saveAs(blob, filename);
+    }
+    
+    // Confirm Export
+    async function confirmExport() {
+      if (!selectedFormat || isExporting) return;
+      
+      isExporting = true;
+      const progress = document.getElementById('exportProgress');
+      progress.classList.add('show');
+      document.getElementById('confirmExportBtn').disabled = true;
+      
+      const filenameInput = document.getElementById('filenameInput').value.trim() || 'writor-document';
+      const extensions = {
+        'txt': '.txt',
+        'md': '.md',
+        'html': '.html',
+        'rtf': '.rtf',
+        'pdf': '.pdf',
+        'docx': '.docx'
+      };
+      const fullFilename = filenameInput + extensions[selectedFormat];
+      
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        switch(selectedFormat) {
+          case 'txt':
+            exportAsTxt(fullFilename);
+            break;
+          case 'md':
+            exportAsMarkdown(fullFilename);
+            break;
+          case 'html':
+            exportAsHtml(fullFilename);
+            break;
+          case 'rtf':
+            exportAsRtf(fullFilename);
+            break;
+          case 'pdf':
+            await exportAsPdf(fullFilename);
+            break;
+          case 'docx':
+            await exportAsDocx(fullFilename);
+            break;
+        }
+        
+        showToast(`Successfully exported as ${fullFilename}! 🎉`);
+        
+        setTimeout(() => {
+          closeExportModal();
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Export failed:', error);
+        showToast('Export failed. Please try again.', 'error');
+      } finally {
+        isExporting = false;
+        progress.classList.remove('show');
+      }
+    }
+    
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        z-index: 3000;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        max-width: 400px;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // Add slide animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Event Listeners
+    document.getElementById('exportBtn').addEventListener('click', openExportModal);
+    
     document.getElementById('newDocBtn').addEventListener('click', function() {
       if (confirm('Start a new document? This will clear current content.')) {
         quill.setContents([]);
-        localStorage.removeItem('tranquil-scribe-content');
-        toastr.info('New document created');
+        localStorage.removeItem('writor-content');
+        showToast('New document created');
       }
     });
     
-    // Open file
     document.getElementById('openFileBtn').addEventListener('click', function() {
       document.getElementById('fileInput').click();
     });
@@ -291,173 +985,60 @@
       const file = e.target.files[0];
       if (!file) return;
       
-      const extension = file.name.split('.').pop().toLowerCase();
       const reader = new FileReader();
-      
       reader.onload = function(e) {
         const content = e.target.result;
+        const extension = file.name.split('.').pop().toLowerCase();
         
-        if (['txt', 'md', 'markdown'].includes(extension)) {
-          // Plain text or markdown
-          if (extension === 'md' || extension === 'markdown') {
-            const converter = new showdown.Converter();
-            const html = converter.makeHtml(content);
-            quill.clipboard.dangerouslyPasteHTML(html);
-          } else {
-            quill.setText(content);
-          }
+        if (extension === 'txt') {
+          quill.setText(content);
+        } else if (extension === 'md' || extension === 'markdown') {
+          const html = marked.parse(content);
+          quill.clipboard.dangerouslyPasteHTML(html);
         } else if (extension === 'html' || extension === 'htm') {
           quill.clipboard.dangerouslyPasteHTML(content);
         } else if (extension === 'rtf') {
-          // Simple RTF to text conversion
           const plainText = content.replace(/\\par[d]?/g, '\n')
                                   .replace(/\\[a-zA-Z]+-?\d* ?/g, '')
-                                  .replace(/[{}]/g, '')
-                                  .replace(/\\'[0-9a-fA-F]{2}/g, '');
+                                  .replace(/[{}]/g, '');
           quill.setText(plainText);
-        } else if (extension === 'docx') {
-          // Use mammoth to convert docx to HTML
-          mammoth.convertToHtml({arrayBuffer: e.target.result})
-            .then(result => {
-              quill.clipboard.dangerouslyPasteHTML(result.value);
-            })
-            .catch(err => toastr.error('Error reading DOCX file'));
         }
         
-        toastr.success(`Opened ${file.name}`);
+        showToast(`Opened ${file.name}`);
         document.getElementById('fileInput').value = '';
       };
       
-      if (extension === 'docx') {
-        reader.readAsArrayBuffer(file);
-      } else {
-        reader.readAsText(file);
-      }
+      reader.readAsText(file);
     });
     
-    // Export functions
-    function exportText() {
-      const text = quill.getText();
-      const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
-      saveAs(blob, 'writing.txt');
-      toastr.success('Exported as TXT');
-    }
-    
-    function exportMarkdown() {
-      const html = quill.root.innerHTML;
-      const turndownService = new TurndownService();
-      const markdown = turndownService.turndown(html);
-      const blob = new Blob([markdown], {type: 'text/markdown;charset=utf-8'});
-      saveAs(blob, 'writing.md');
-      toastr.success('Exported as Markdown');
-    }
-    
-    function exportHTML() {
-      const html = quill.root.innerHTML;
-      const fullHTML = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Writing Export</title>
-  <style>
-    body { max-width: 800px; margin: 2rem auto; padding: 0 20px; font-family: Georgia, serif; }
-  </style>
-</head>
-<body>${html}</body>
-</html>`;
-      const blob = new Blob([fullHTML], {type: 'text/html;charset=utf-8'});
-      saveAs(blob, 'writing.html');
-      toastr.success('Exported as HTML');
-    }
-    
-    function exportRTF() {
-      const text = quill.getText();
-      const escaped = text.replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}').replace(/\n/g, '\\par\n');
-      const rtfContent = `{\\rtf1\\ansi\\deff0 {\\fonttbl {\\f0 Times New Roman;}}\n\\f0\\fs24 ${escaped}\n}`;
-      const blob = new Blob([rtfContent], {type: 'application/rtf'});
-      saveAs(blob, 'writing.rtf');
-      toastr.success('Exported as RTF');
-    }
-    
-    async function exportPDF() {
-      const { PDFDocument, StandardFonts, rgb } = PDFLib;
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage();
-      const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-      const text = quill.getText();
-      
-      page.drawText(text, {
-        x: 50,
-        y: page.getHeight() - 50,
-        size: 12,
-        font: font,
-        maxWidth: 500,
-        lineHeight: 18,
-        color: rgb(0, 0, 0)
-      });
-      
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], {type: 'application/pdf'});
-      saveAs(blob, 'writing.pdf');
-      toastr.success('Exported as PDF');
-    }
-    
-    async function exportDOCX() {
-      const text = quill.getText();
-      const doc = new docx.Document({
-        sections: [{
-          properties: {},
-          children: [
-            new docx.Paragraph({
-              children: [
-                new docx.TextRun({
-                  text: text,
-                  size: 24, // 12pt
-                }),
-              ],
-            }),
-          ],
-        }],
-      });
-      
-      const blob = await docx.Packer.toBlob(doc);
-      saveAs(blob, 'writing.docx');
-      toastr.success('Exported as DOCX');
-    }
-    
-    // Export dropdown handlers
-    document.querySelectorAll('[data-export]').forEach(item => {
-      item.addEventListener('click', function(e) {
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'e') {
         e.preventDefault();
-        const format = this.getAttribute('data-export');
-        
-        switch(format) {
-          case 'txt': exportText(); break;
-          case 'md': exportMarkdown(); break;
-          case 'html': exportHTML(); break;
-          case 'rtf': exportRTF(); break;
-          case 'pdf': exportPDF(); break;
-          case 'docx': exportDOCX(); break;
-        }
-      });
-    });
-    
-    // Fullscreen toggle
-    document.getElementById('fullscreenBtn').addEventListener('click', function() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        document.exitFullscreen();
+        openExportModal();
+      }
+      if (e.key === 'Escape') {
+        closeExportModal();
+      }
+      if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        undoAction();
+      }
+      if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        redoAction();
+      }
+      if (e.ctrlKey && e.key === 'a') {
+        e.preventDefault();
+        selectAllAction();
       }
     });
     
-    // Stats toggle
-    let statsVisible = true;
-    document.getElementById('statsToggleBtn').addEventListener('click', function() {
-      statsVisible = !statsVisible;
-      document.querySelectorAll('.stats-badge').forEach(badge => {
-        badge.style.display = statsVisible ? 'inline-block' : 'none';
-      });
+    // Close modal on backdrop click
+    document.getElementById('exportModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeExportModal();
+      }
     });
     
     // Drag and drop
@@ -472,14 +1053,15 @@
       
       const files = e.dataTransfer.files;
       if (files.length > 0) {
-        const file = files[0];
         document.getElementById('fileInput').files = files;
         document.getElementById('fileInput').dispatchEvent(new Event('change'));
       }
     });
     
     // Welcome message
-    toastr.success('Welcome to Writor! ✨', 'by Levermake');
+    setTimeout(() => {
+      showToast('Welcome to Writor by Levermake! ✨');
+    }, 500);
   </script>
 </body>
 </html>
