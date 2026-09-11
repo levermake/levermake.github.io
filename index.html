@@ -1,119 +1,501 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#050505">
-  <title>LEVERMAKE — Build Beyond</title>
-  <meta name="description" content="Levermake — experimental digital work at the intersection of technology, design and culture.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;700;800;900&family=Playfair+Display:ital,wght@0,400;1,400;1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levermake | computers are fun.</title>
+
+<!--
+  DESIGN NOTE
+  ------------
+  Subject: two Renaissance/High-Renaissance ceiling-and-wall frescoes
+  (Raphael's "School of Athens" and Michelangelo's "Creation of Adam"),
+  both public-domain, both literally painted overhead in the Vatican.
+  The concept: the visitor's gaze (cursor) acts like a torch/skylight
+  passing over two superimposed frescoes — one bleached to white chalk,
+  one burned to black soot — so the page behaves like a hand tracing
+  plaster to see what lies underneath.
+
+  Palette:  #050505 (near-black ground), #f5f2ea (chalk white),
+            #8f8a7c (aged plaster grey), #c9c2ad (parchment line)
+  Type:     "Cormorant Garamond" (display/serif, carries the fresco/
+            manuscript feel) + "Inter" (body/UI, quiet workhorse)
+  Layout:   full-bleed fresco backdrop, single centered parchment
+            column (nav / body / footer stacked), max-width ~640px
+            so line length stays readable over a busy background.
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink: #050505;
+    --chalk: #f5f2ea;
+    --plaster: #8f8a7c;
+    --line: rgba(245,242,234,0.28);
+    /* cursor position in viewport %, updated live by JS */
+    --mx: 50%;
+    --my: 50%;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    height: 100%;
+    background: var(--ink);
+    color: var(--chalk);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    cursor: none; /* default cursor is replaced by .cursor-dot below */
+  }
+
+  ::selection{ background: var(--chalk); color: var(--ink); }
+
+  /* ============ BACKGROUND FRESCO LAYERS ============ */
+
+  .fresco-stack{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: var(--ink);
+  }
+
+  .fresco{
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center 30%;
+    will-change: mask-position, filter;
+  }
+
+  /* Bottom layer: The Creation of Adam, bleached to chalk-white on black */
+  .fresco--adam{
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg');
+    filter: grayscale(1) invert(1) contrast(1.25) brightness(0.95);
+    z-index: 1;
+  }
+
+  /* Top layer: The School of Athens, burned down to soot-black on white,
+     then masked with a soft radial hole that follows the cursor —
+     inside the hole it is fully transparent (Adam shows through),
+     outside it fades back to fully opaque (Athens covers Adam). */
+  .fresco--athens{
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/4a/%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg');
+    filter: grayscale(1) contrast(1.3) brightness(1.05);
+    z-index: 2;
+    mix-blend-mode: normal;
+
+    /* the mask: transparent near the cursor, opaque far from it */
+    -webkit-mask-image: radial-gradient(
+      circle at var(--mx) var(--my),
+      transparent 0px,
+      transparent 90px,
+      rgba(0,0,0,0.35) 260px,
+      rgba(0,0,0,1) 480px
+    );
+    mask-image: radial-gradient(
+      circle at var(--mx) var(--my),
+      transparent 0px,
+      transparent 90px,
+      rgba(0,0,0,0.35) 260px,
+      rgba(0,0,0,1) 480px
+    );
+  }
+
+  /* Faint scrim so foreground text stays legible over both frescoes */
+  .fresco-scrim{
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    background: radial-gradient(circle at 50% 20%, rgba(5,5,5,0.15), rgba(5,5,5,0.72) 75%);
+    pointer-events: none;
+  }
+
+  /* ============ CUSTOM CURSOR ============ */
+
+  .cursor-dot, .cursor-ring{
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 50;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .cursor-dot{
+    width: 6px; height: 6px;
+    background: var(--chalk);
+    transition: transform 0.08s ease-out;
+  }
+
+  .cursor-ring{
+    width: 34px; height: 34px;
+    border: 1px solid var(--line);
+    transition: transform 0.15s ease-out, width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* the ring widens and brightens over anything editable, as a hint */
+  body.hover-editable .cursor-ring{
+    width: 52px; height: 52px;
+    border-color: var(--chalk);
+  }
+
+  /* ============ PAGE STRUCTURE ============ */
+
+  .page{
+    position: relative;
+    z-index: 4;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6vw 6vw 4vw;
+  }
+
+  .column{
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    gap: 5.5rem;
+  }
+
+  /* ---- shared editable-section chrome ---- */
+
+  [data-editable]{
+    outline: none;
+    border-radius: 2px;
+    padding: 0.15em 0.35em;
+    margin: -0.15em -0.35em;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  [data-editable]:hover{
+    background: rgba(245,242,234,0.06);
+    box-shadow: 0 0 0 1px var(--line);
+  }
+
+  [data-editable]:focus{
+    background: rgba(245,242,234,0.1);
+    box-shadow: 0 0 0 1px var(--chalk);
+    cursor: text;
+  }
+
+  [data-editable]::after{
+    content: "";
+  }
+
+  .edit-hint{
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
+    color: var(--plaster);
+    margin-top: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  [data-editable]:hover + .edit-hint,
+  [data-editable]:focus + .edit-hint{
+    opacity: 1;
+  }
+
+  /* ---- nav ---- */
+
+  nav.section{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 2rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  nav .brand[data-editable]{
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+  }
+
+  nav ul{
+    list-style: none;
+    display: flex;
+    gap: 1.75rem;
+    margin: 0; padding: 0;
+    font-size: 0.9rem;
+  }
+
+  nav ul li{ white-space: nowrap; }
+
+  nav a[data-editable],
+  footer a[data-editable]{
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  nav a[data-editable]:hover,
+  footer a[data-editable]:hover{
+    border-bottom-color: var(--chalk);
+  }
+
+  /* ---- body / hero ---- */
+
+  main.section .eyebrow{
+    font-size: 0.75rem;
+    color: var(--plaster);
+    margin-bottom: 0.9rem;
+  }
+
+  main.section h1[data-editable]{
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    line-height: 1.12;
+    margin: 0 0 1.4rem;
+    letter-spacing: 0.002em;
+  }
+
+  main.section p[data-editable]{
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(245,242,234,0.88);
+    max-width: 56ch;
+  }
+
+  main.section p[data-editable] + p[data-editable]{
+    margin-top: 1.1rem;
+  }
+
+  /* ---- footer ---- */
+
+  footer.section{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--plaster);
+  }
+
+  footer.section .row{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* small helper visible only near the top on first load */
+  .instructions{
+    position: fixed;
+    top: 1.4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    color: var(--plaster);
+    background: rgba(5,5,5,0.55);
+    border: 1px solid var(--line);
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1.2s ease 2.4s;
+  }
+  .instructions.fade{ opacity: 0; }
+
+  @media (max-width: 560px){
+    nav.section{ flex-direction: column; align-items: flex-start; gap: 0.9rem; }
+    .column{ gap: 4rem; }
+  }
+
+  @media (hover: none){
+    /* touch devices have no meaningful cursor position — fall back to
+       a gentle static reveal so the page still reads correctly */
+    html, body{ cursor: auto; }
+    .cursor-dot, .cursor-ring{ display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .fresco--athens{ transition: none; }
+    .cursor-dot, .cursor-ring{ transition: none; }
+  }
+</style>
 </head>
 <body>
-  <div class="grain"></div>
-  <div class="progress"><span></span></div>
-  <div class="cursor"></div><div class="cursor-dot"></div>
 
-  <header>
-    <a class="logo magnetic" href="#home">LEVER<span>/</span>MAKE</a>
-    <nav>
-      <a href="#about">01 / ABOUT</a>
-      <a href="#work">02 / WORK</a>
-      <a href="#contact">03 / CONTACT</a>
-      <a href="/projects/"> / APPS </a>
-    </nav>
-    <button class="menu magnetic" aria-label="Open menu" aria-expanded="false"><i></i><i></i></button>
-  </header>
+  <!-- ============ BACKGROUND: two stacked, cursor-revealed frescoes ============ -->
+  <div class="fresco-stack" aria-hidden="true">
+    <div class="fresco fresco--adam"></div>
+    <div class="fresco fresco--athens"></div>
+  </div>
+  <div class="fresco-scrim" aria-hidden="true"></div>
 
-  <div id="scene" aria-hidden="true">
-    <div class="painting painting-a"></div>
-    <div class="painting painting-b"></div>
-    <div class="painting painting-c"></div>
-    <div class="vignette"></div>
-    <div class="wire wire-a"></div>
-    <div class="wire wire-b"></div>
+  <!-- ============ CUSTOM CURSOR ============ -->
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div class="instructions" id="instructions">click any text to edit · move your cursor to uncover the ceiling</div>
+
+  <!-- ============ PAGE CONTENT ============ -->
+  <div class="page">
+    <div class="column">
+
+      <nav class="section">
+        <div class="brand" data-editable data-key="nav-brand" contenteditable="true" spellcheck="false">Levermake</div>
+        <ul>
+          <li data-editable data-key="nav-link-1" contenteditable="true" spellcheck="false">Work</li>
+          <li><a href="https://github.com/levermake" target="_blank" rel="noopener" data-editable data-key="nav-link-2" contenteditable="true" spellcheck="false">GitHub</a></li>
+          <li><a href="https://x.com/levermake" target="_blank" rel="noopener" data-editable data-key="nav-link-3" contenteditable="true" spellcheck="false">X</a></li>
+        </ul>
+      </nav>
+
+      <main class="section">
+        <div class="eyebrow">developer &amp; builder</div>
+        <h1 data-editable data-key="body-title" contenteditable="true" spellcheck="false">Hi, I'm Levermake</h1>
+        <p data-editable data-key="body-p1" contenteditable="true" spellcheck="false">I build things — mostly code, sometimes strange little corners of the web like this one. This is my personal and professional home: a place to point people toward my work, my writing, and whatever I'm making right now.</p>
+        <p data-editable data-key="body-p2" contenteditable="true" spellcheck="false">Every word on this page is editable — click any line, type your own, click away. Nothing is sent to a server; it's saved locally in this browser tab, so you can shape this into your real bio, project list, or pitch whenever you're ready.</p>
+        <div class="edit-hint">editable — click to change this text</div>
+      </main>
+
+      <footer class="section">
+        <div class="row">
+          <span data-editable data-key="footer-left" contenteditable="true" spellcheck="false">© 2026 Levermake</span>
+          <span>
+            <a href="https://github.com/levermake" target="_blank" rel="noopener" data-editable data-key="footer-github" contenteditable="true" spellcheck="false">github.com/levermake</a>
+            &nbsp;·&nbsp;
+            <a href="https://x.com/levermake" target="_blank" rel="noopener" data-editable data-key="footer-x" contenteditable="true" spellcheck="false">x.com/levermake</a>
+          </span>
+        </div>
+        <div class="edit-hint">editable — click to change this text, links still work</div>
+      </footer>
+
+    </div>
   </div>
 
-  <main>
-    <section id="home" class="hero">
-      <div class="hero-title">
-        <p class="mono">LEVERMAKE / 001 / DIGITAL WORKSHOP</p>
-        <h1>BUILD<br><em>BEYOND.</em></h1>
-        <p class="intro">I make strange, useful and beautiful things for the web.</p>
-        <a class="enter magnetic" href="#about"><span>ENTER</span><b>↓</b></a>
-      </div>
-      <div class="hero-bottom mono"><span>SCROLL TO EXPLORE</span><span>23° 54' 14" S / 28° 14' 06" E</span></div>
-    </section>
+<script>
+(function(){
+  'use strict';
 
-    <section id="about" class="about">
-      <div class="number mono">01 / 05</div>
-      <div class="about-main">
-        <p class="mono label">THE PRINCIPLE</p>
-        <h2>Old ideas.<br><em>New machines.</em></h2>
-        <p class="statement">Levermake is a digital workshop for ideas that refuse to stay still. I combine engineering, visual culture and obsessive interaction design.</p>
-      </div>
-      <div class="art-caption mono">FIG. 01 — STUDY IN MOTION<br>PUBLIC DOMAIN / OPEN ACCESS</div>
-    </section>
+  /* =========================================================
+     1) CUSTOM CURSOR + BACKGROUND-REVEAL TRACKING
+     ---------------------------------------------------------
+     A single mousemove listener drives three things at once:
+       a) the visible dot + ring that replace the OS cursor
+       b) the CSS custom properties --mx / --my (in viewport %)
+          which the .fresco--athens mask-image reads to know
+          where its "hole" should be centered
+     We throttle the expensive part (the CSS variable write,
+     which triggers a mask repaint) to one update per animation
+     frame, so fast mouse movement never queues up more paint
+     work than the browser can keep up with.
+  ========================================================= */
 
-    <section id="work" class="work">
-      <div class="number mono">02 / 05</div>
-      <div class="work-head">
-        <p class="mono label">SELECTED WORK</p>
-        <h2>Things<br>we <em>made.</em></h2>
-      </div>
-      <div class="works">
-        <article class="work-item">
-          <div class="work-visual visual-1"><span class="mono">L/01</span></div>
-          <div class="work-meta"><b>VOIDMARK</b><span>INTERACTIVE / 2026</span><i>↗</i></div>
-        </article>
-        <article class="work-item">
-          <div class="work-visual visual-2"><span class="mono">L/02</span></div>
-          <div class="work-meta"><b>CHESS / ENGINE</b><span>WEB / SYSTEMS</span><i>↗</i></div>
-        </article>
-        <article class="work-item">
-          <div class="work-visual visual-3"><span class="mono">L/03</span></div>
-          <div class="work-meta"><b>NOIR</b><span>EXPERIMENT / MOTION</span><i>↗</i></div>
-        </article>
-      </div>
-    </section>
+  const root       = document.documentElement;
+  const cursorDot  = document.getElementById('cursorDot');
+  const cursorRing = document.getElementById('cursorRing');
 
-    <section class="manifesto">
-      <div class="number mono">03 / 05</div>
-      <div class="manifesto-word">MAKE</div>
-      <div class="manifesto-copy">
-        <p>Not everything needs to be practical.</p>
-        <p>Not everything needs to be explained.</p>
-        <p><em>But everything should feel alive.</em></p>
-      </div>
-    </section>
+  let latestX = window.innerWidth / 2;
+  let latestY = window.innerHeight / 2;
+  let ticking = false;
 
-    <section class="process">
-      <div class="number mono">04 / 05</div>
-      <div class="process-grid">
-        <div><p class="mono label">METHOD</p><h2>OBSERVE.<br>BREAK.<br><em>MAKE.</em></h2></div>
-        <div class="steps">
-          <div><span>01</span><p>Find the interesting problem.</p></div>
-          <div><span>02</span><p>Strip away what doesn't matter.</p></div>
-          <div><span>03</span><p>Build the version nobody expected.</p></div>
-        </div>
-      </div>
-    </section>
+  function paint(){
+    // Convert raw pixel coordinates to viewport percentages so the
+    // reveal stays correctly centered under the cursor at any
+    // window size, and update the two CSS vars the mask reads.
+    const xPct = (latestX / window.innerWidth) * 100;
+    const yPct = (latestY / window.innerHeight) * 100;
+    root.style.setProperty('--mx', xPct + '%');
+    root.style.setProperty('--my', yPct + '%');
 
-    <section id="contact" class="contact">
-      <div class="number mono">05 / 05</div>
-      <p class="mono label">MAKE SOMETHING</p>
-      <h2>Let's build<br><em>the impossible.</em></h2>
-      <a class="mail magnetic" href="mailto:support@levermake.env.pm">support@levermake.env.pm <span>↗</span></a>
-      <footer class="mono"><span>LEVERMAKE © 2026</span><a href="https://x.com/levermake" target="_blank" rel="noreferrer">@LEVERMAKE / X</a><a href="https://github.com/levermake" target="_blank" rel="noreferrer">GITHUB</a></footer>
-    </section>
-  </main>
+    // Move the custom cursor graphics directly via transform
+    // (cheaper than top/left, since it skips layout entirely).
+    cursorDot.style.transform  = `translate(${latestX}px, ${latestY}px) translate(-50%, -50%)`;
+    cursorRing.style.transform = `translate(${latestX}px, ${latestY}px) translate(-50%, -50%)`;
 
-  <aside class="drawer" aria-hidden="true">
-    <button class="close">CLOSE ×</button>
-    <a href="#home">00 — HOME</a><a href="#about">01 — ABOUT</a><a href="#work">02 — WORK</a><a href="#contact">05 — CONTACT</a>
-  </aside>
-  <script type="module" src="./app.js"></script>
+    ticking = false;
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    latestX = e.clientX;
+    latestY = e.clientY;
+    if (!ticking){
+      requestAnimationFrame(paint);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // First paint so the cursor graphics aren't sitting at 0,0
+  // before the user's first mouse movement.
+  paint();
+
+  // Hide the one-time instructions pill after a few seconds.
+  const instructions = document.getElementById('instructions');
+  setTimeout(() => instructions.classList.add('fade'), 400);
+
+  // Widen the cursor ring whenever it's hovering an editable node,
+  // as a lightweight affordance that doesn't require a tooltip.
+  document.querySelectorAll('[data-editable]').forEach((el) => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hover-editable'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hover-editable'));
+  });
+
+
+  /* =========================================================
+     2) INLINE EDITING + SESSION PERSISTENCE
+     ---------------------------------------------------------
+     Every element with [data-editable] is contenteditable.
+     On each edit we write its innerText to sessionStorage under
+     its data-key, so a reload during the same tab session
+     restores whatever the visitor typed. Nothing leaves the
+     browser and nothing is stored once the tab is closed.
+  ========================================================= */
+
+  const STORAGE_PREFIX = 'two-ceilings:';
+
+  const editableNodes = document.querySelectorAll('[data-editable]');
+
+  // Restore any previously-edited text for this session.
+  editableNodes.forEach((el) => {
+    const key = STORAGE_PREFIX + el.dataset.key;
+    const saved = sessionStorage.getItem(key);
+    if (saved !== null){
+      el.innerText = saved;
+    }
+  });
+
+  // Save on every keystroke (debounced to avoid hammering storage)
+  // and also on blur, so a stray tab-away never loses an edit.
+  let saveTimers = new WeakMap();
+
+  function scheduleSave(el){
+    clearTimeout(saveTimers.get(el));
+    const timer = setTimeout(() => {
+      const key = STORAGE_PREFIX + el.dataset.key;
+      sessionStorage.setItem(key, el.innerText);
+    }, 250);
+    saveTimers.set(el, timer);
+  }
+
+  editableNodes.forEach((el) => {
+    el.addEventListener('input', () => scheduleSave(el));
+    el.addEventListener('blur',  () => scheduleSave(el));
+
+    // Enter commits the edit and blurs, rather than inserting a
+    // literal line break — most of these fields read as one line.
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && el.tagName !== 'P'){
+        e.preventDefault();
+        el.blur();
+      }
+    });
+  });
+
+})();
+</script>
+
 </body>
 </html>
