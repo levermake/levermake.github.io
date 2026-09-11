@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Levermake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="fresco-stack" aria-hidden="true">
+    <div class="fresco fresco--adam"></div>
+    <div class="fresco fresco--athens"></div>
+  </div>
+  <div class="fresco-scrim" aria-hidden="true"></div>
+
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div class="page">
+    <div class="column">
+
+      <nav class="section">
+        <a class="brand" href="index.html" data-key="nav-brand" data-simple-editable contenteditable="true" spellcheck="false">Levermake</a>
+        <ul>
+          <li><a href="index.html" data-key="nav-home" data-simple-editable contenteditable="true" spellcheck="false">Home</a></li>
+          <li><a href="projects.html" data-key="nav-projects" data-simple-editable contenteditable="true" spellcheck="false">Projects</a></li>
+          <li><a href="blog.html" class="is-current" data-key="nav-blog" data-simple-editable contenteditable="true" spellcheck="false">Blog</a></li>
+          <li><a href="links.html" data-key="nav-links" data-simple-editable contenteditable="true" spellcheck="false">Links</a></li>
+          <li><a href="https://github.com/levermake" target="_blank" rel="noopener" data-key="nav-github" data-simple-editable contenteditable="true" spellcheck="false">GitHub</a></li>
+          <li><a href="https://x.com/levermake" target="_blank" rel="noopener" data-key="nav-x" data-simple-editable contenteditable="true" spellcheck="false">X</a></li>
+        </ul>
+      </nav>
+
+      <main class="section">
+        <div class="eyebrow" data-key="blog-eyebrow" data-simple-editable contenteditable="true" spellcheck="false">writing</div>
+        <h1 data-key="blog-title" data-simple-editable contenteditable="true" spellcheck="false">Blog</h1>
+        <p data-key="blog-intro" data-simple-editable contenteditable="true" spellcheck="false">Notes, write-ups, and things I learned the hard way. Each entry below points wherever you've actually published it — Substack, Medium, dev.to, or a page on this site.</p>
+        <div class="collection" id="blogList"></div>
+      </main>
+
+      <footer class="section">
+        <div class="row">
+          <span data-key="footer-left" data-simple-editable contenteditable="true" spellcheck="false">© 2026 Levermake</span>
+          <span>
+            <a href="https://github.com/levermake" target="_blank" rel="noopener" data-key="footer-github" data-simple-editable contenteditable="true" spellcheck="false">github.com/levermake</a>
+            &nbsp;·&nbsp;
+            <a href="https://x.com/levermake" target="_blank" rel="noopener" data-key="footer-x" data-simple-editable contenteditable="true" spellcheck="false">x.com/levermake</a>
+          </span>
+        </div>
+        <div class="edit-hint">editable — click any text, link label, or destination to change it</div>
+      </footer>
+
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  Levermake.initCollection({
+    container: document.getElementById('blogList'),
+    storageKey: 'blog',
+    defaults: [
+      { date: 'Jan 2026', title: 'A post about something I shipped', excerpt: 'One or two sentences summarizing the post \u2014 swap this for your real excerpt.', url: 'https://example.com/post-one' },
+      { date: 'Dec 2025', title: 'Another post title goes here', excerpt: 'Short excerpt text. Click to edit, or delete this row entirely.', url: 'https://example.com/post-two' },
+    ],
+    renderItem: Levermake.buildBlogRow,
+    addButtonLabel: '+ add post',
+    newItem: () => ({ date: 'New', title: 'New post', excerpt: 'Write a short excerpt here.', url: 'https://example.com' }),
+  });
+</script>
+</body>
+</html>
