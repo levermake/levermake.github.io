@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Levermake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="fresco-stack" aria-hidden="true">
+    <div class="fresco fresco--adam"></div>
+    <div class="fresco fresco--athens"></div>
+  </div>
+  <div class="fresco-scrim" aria-hidden="true"></div>
+
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div class="page">
+    <div class="column">
+
+      <nav class="section">
+        <a class="brand" href="index.html" data-key="nav-brand" data-simple-editable contenteditable="true" spellcheck="false">Levermake</a>
+        <ul>
+          <li><a href="index.html" data-key="nav-home" data-simple-editable contenteditable="true" spellcheck="false">Home</a></li>
+          <li><a href="projects.html" class="is-current" data-key="nav-projects" data-simple-editable contenteditable="true" spellcheck="false">Projects</a></li>
+          <li><a href="blog.html" data-key="nav-blog" data-simple-editable contenteditable="true" spellcheck="false">Blog</a></li>
+          <li><a href="links.html" data-key="nav-links" data-simple-editable contenteditable="true" spellcheck="false">Links</a></li>
+          <li><a href="https://github.com/levermake" target="_blank" rel="noopener" data-key="nav-github" data-simple-editable contenteditable="true" spellcheck="false">GitHub</a></li>
+          <li><a href="https://x.com/levermake" target="_blank" rel="noopener" data-key="nav-x" data-simple-editable contenteditable="true" spellcheck="false">X</a></li>
+        </ul>
+      </nav>
+
+      <main class="section">
+        <div class="eyebrow" data-key="projects-eyebrow" data-simple-editable contenteditable="true" spellcheck="false">selected work</div>
+        <h1 data-key="projects-title" data-simple-editable contenteditable="true" spellcheck="false">Projects</h1>
+        <p data-key="projects-intro" data-simple-editable contenteditable="true" spellcheck="false">A running list of things I've built. Click any title, description, or link below to edit it in place — the URL box under each project is what "View ↗" actually opens.</p>
+        <div class="collection" id="projectsList"></div>
+      </main>
+
+      <footer class="section">
+        <div class="row">
+          <span data-key="footer-left" data-simple-editable contenteditable="true" spellcheck="false">© 2026 Levermake</span>
+          <span>
+            <a href="https://github.com/levermake" target="_blank" rel="noopener" data-key="footer-github" data-simple-editable contenteditable="true" spellcheck="false">github.com/levermake</a>
+            &nbsp;·&nbsp;
+            <a href="https://x.com/levermake" target="_blank" rel="noopener" data-key="footer-x" data-simple-editable contenteditable="true" spellcheck="false">x.com/levermake</a>
+          </span>
+        </div>
+        <div class="edit-hint">editable — click any text, link label, or destination to change it</div>
+      </footer>
+
+    </div>
+  </div>
+
+<script src="app.js"></script>
+<script>
+  Levermake.initCollection({
+    container: document.getElementById('projectsList'),
+    storageKey: 'projects',
+    defaults: [
+      { title: 'Project One', desc: 'A short description of what this project does, who it\u2019s for, and why it exists.', url: 'github.com/levermake/project-one' },
+      { title: 'Project Two', desc: 'Swap this for real copy \u2014 what problem it solves, what you built it with.', url: 'github.com/levermake/project-two' },
+      { title: 'Project Three', desc: 'A third project slot, ready to edit or delete.', url: 'github.com/levermake/project-three' },
+    ],
+    renderItem: Levermake.buildProjectRow,
+    addButtonLabel: '+ add project',
+    newItem: () => ({ title: 'New project', desc: 'Describe it here.', url: 'https://example.com' }),
+  });
+</script>
+</body>
+</html>
